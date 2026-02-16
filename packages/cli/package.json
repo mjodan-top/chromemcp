@@ -1,0 +1,20 @@
+{
+  "name": "@chromemcp/cli",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "bin": {
+    "chromemcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@chromemcp/core": "file:../core",
+    "@chromemcp/mcp-server": "file:../mcp-server",
+    "commander": "^11.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  }
+}
