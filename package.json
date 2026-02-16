@@ -7,6 +7,7 @@
     "packages/*"
   ],
   "scripts": {
+    "postinstall": "node scripts/install-browsers.js",
     "build": "npm run build --workspaces",
     "test": "npm run test --workspaces",
     "clean": "rm -rf packages/*/dist packages/*/node_modules node_modules"
