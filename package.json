@@ -9,7 +9,7 @@
   "scripts": {
     "build": "npm run build --workspaces",
     "test": "npm run test --workspaces",
-    "lint": "eslint packages/*/src/**/*.ts"
+    "clean": "rm -rf packages/*/dist packages/*/node_modules node_modules"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
