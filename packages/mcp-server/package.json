@@ -1,0 +1,17 @@
+{
+  "name": "@chromemcp/mcp-server",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "chromemcp-server": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@chromemcp/core": "file:../core",
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  }
+}
