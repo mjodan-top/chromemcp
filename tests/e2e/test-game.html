@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Game - ChromeMCP</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #222;
+            font-family: Arial, sans-serif;
+        }
+        #game-container {
+            text-align: center;
+        }
+        canvas {
+            border: 2px solid #444;
+            background: #000;
+        }
+        #status {
+            color: #fff;
+            margin-top: 10px;
+            font-size: 18px;
+        }
+        #instructions {
+            color: #888;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas" width="400" height="300"></canvas>
+        <div id="status">Press SPACE to start</div>
+        <div id="instructions">Use SPACE to toggle color, Arrow keys to move</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const statusDiv = document.getElementById('status');
+
+        let gameState = 'idle'; // idle, running, paused
+        let boxColor = '#ff0000';
+        let boxX = 150;
+        let boxY = 100;
+        let boxSize = 50;
+
+        function draw() {
+            // Clear canvas
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw box
+            ctx.fillStyle = boxColor;
+            ctx.fillRect(boxX, boxY, boxSize, boxSize);
+
+            // Draw border
+            ctx.strokeStyle = '#fff';
+            ctx.strokeRect(boxX, boxY, boxSize, boxSize);
+
+            requestAnimationFrame(draw);
+        }
+
+        // Start drawing
+        draw();
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            console.log('Key pressed:', e.key);
+
+            switch(e.key) {
+                case ' ':
+                    e.preventDefault();
+                    if (gameState === 'idle') {
+                        gameState = 'running';
+                        statusDiv.textContent = 'Game Running - SPACE to change color';
+                    }
+                    // Toggle color
+                    boxColor = boxColor === '#ff0000' ? '#00ff00' : '#ff0000';
+                    console.log('Color changed to:', boxColor);
+                    break;
+
+                case 'ArrowUp':
+                    boxY = Math.max(0, boxY - 10);
+                    break;
+
+                case 'ArrowDown':
+                    boxY = Math.min(canvas.height - boxSize, boxY + 10);
+                    break;
+
+                case 'ArrowLeft':
+                    boxX = Math.max(0, boxX - 10);
+                    break;
+
+                case 'ArrowRight':
+                    boxX = Math.min(canvas.width - boxSize, boxX + 10);
+                    break;
+            }
+        });
+
+        // Log when canvas is ready
+        console.log('Game canvas initialized');
+        console.log('Canvas size:', canvas.width, 'x', canvas.height);
+    </script>
+</body>
+</html>
