@@ -1752,31 +1752,6 @@
         }
 
         /**
-         * Show statistics modal
-         */
-        function showStats() {
-            const stats = UserData.getStats();
-            const message = `
-📊 学习统计
-
-总单词数: ${stats.totalWords}
-已学习: ${stats.learnedWords}
-错题数: ${stats.wrongWordsCount}
-
-🎮 游戏记录
-最高分: ${stats.highScore}
-最高连胜: ${stats.maxStreak}
-总游戏数: ${stats.totalGames}
-
-✅ 答题情况
-正确: ${stats.correctCount}
-错误: ${stats.wrongCount}
-正确率: ${stats.accuracy}%
-            `;
-            alert(message);
-        }
-
-        /**
          * Render vocabulary management content
          */
         function renderVocabularyContent() {
@@ -1812,6 +1787,862 @@
 
             html += '</div>';
             container.innerHTML = html;
+        }
+
+        // ============================================
+        // TASK 10: CANVAS GAME RENDERER
+        // ============================================
+
+        const GameRenderer = {
+            canvas: null,
+            ctx: null,
+            animationId: null,
+            ballRotation: 0,
+            goalAnimationProgress: 0,
+
+            /**
+             * Initialize the canvas renderer
+             * @param {string} canvasId - ID of the canvas element
+             */
+            init(canvasId) {
+                this.canvas = document.getElementById(canvasId);
+                if (!this.canvas) {
+                    console.error('Canvas not found:', canvasId);
+                    return false;
+                }
+                this.ctx = this.canvas.getContext('2d');
+                this.renderField();
+                return true;
+            },
+
+            /**
+             * Render the soccer field
+             */
+            renderField() {
+                if (!this.ctx) return;
+                const ctx = this.ctx;
+                const width = this.canvas.width;
+                const height = this.canvas.height;
+
+                // Clear canvas
+                ctx.clearRect(0, 0, width, height);
+
+                // Draw sky gradient
+                const skyGradient = ctx.createLinearGradient(0, 0, 0, height * 0.4);
+                skyGradient.addColorStop(0, '#87CEEB');
+                skyGradient.addColorStop(1, '#B0E0E6');
+                ctx.fillStyle = skyGradient;
+                ctx.fillRect(0, 0, width, height * 0.4);
+
+                // Draw grass gradient
+                const grassGradient = ctx.createLinearGradient(0, height * 0.4, 0, height);
+                grassGradient.addColorStop(0, '#5a8f3e');
+                grassGradient.addColorStop(1, '#3d6b2a');
+                ctx.fillStyle = grassGradient;
+                ctx.fillRect(0, height * 0.4, width, height * 0.6);
+
+                // Draw field lines
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+                ctx.lineWidth = 3;
+
+                // Center circle
+                ctx.beginPath();
+                ctx.arc(width / 2, height * 0.7, 40, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // Center line
+                ctx.beginPath();
+                ctx.moveTo(0, height * 0.7);
+                ctx.lineTo(width, height * 0.7);
+                ctx.stroke();
+
+                // Penalty area
+                ctx.strokeRect(width * 0.2, height * 0.4, width * 0.6, height * 0.25);
+
+                // Goal area
+                ctx.strokeRect(width * 0.35, height * 0.4, width * 0.3, height * 0.12);
+
+                // Render goal
+                this.renderGoal(width / 2, height * 0.42);
+
+                // Render player
+                this.renderPlayer(width / 2, height * 0.78);
+
+                // Render ball
+                this.renderBall(width / 2, height * 0.72, this.ballRotation);
+            },
+
+            /**
+             * Render the goal
+             * @param {number} x - X position
+             * @param {number} y - Y position
+             */
+            renderGoal(x, y) {
+                if (!this.ctx) return;
+                const ctx = this.ctx;
+
+                // Goal posts
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(x - 60, y - 30, 8, 40);
+                ctx.fillRect(x + 52, y - 30, 8, 40);
+
+                // Crossbar
+                ctx.fillRect(x - 60, y - 30, 120, 6);
+
+                // Goal net (grid pattern)
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.lineWidth = 1;
+
+                // Vertical net lines
+                for (let i = -50; i <= 50; i += 10) {
+                    ctx.beginPath();
+                    ctx.moveTo(x + i, y - 30);
+                    ctx.lineTo(x + i * 0.8, y - 50);
+                    ctx.stroke();
+                }
+
+                // Horizontal net lines
+                for (let i = -30; i >= -50; i -= 10) {
+                    ctx.beginPath();
+                    ctx.moveTo(x - 60, y + i);
+                    ctx.lineTo(x + 60, y + i);
+                    ctx.stroke();
+                }
+            },
+
+            /**
+             * Render the player
+             * @param {number} x - X position
+             * @param {number} y - Y position
+             */
+            renderPlayer(x, y) {
+                if (!this.ctx) return;
+                const ctx = this.ctx;
+
+                // Shadow
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                ctx.beginPath();
+                ctx.ellipse(x, y + 25, 20, 8, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Body (jersey)
+                ctx.fillStyle = '#e74c3c';
+                ctx.beginPath();
+                ctx.ellipse(x, y, 18, 22, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Jersey stripes
+                ctx.fillStyle = '#c0392b';
+                ctx.fillRect(x - 8, y - 15, 4, 30);
+                ctx.fillRect(x + 4, y - 15, 4, 30);
+
+                // Head
+                ctx.fillStyle = '#f5d0b0';
+                ctx.beginPath();
+                ctx.arc(x, y - 25, 12, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Hair
+                ctx.fillStyle = '#4a3728';
+                ctx.beginPath();
+                ctx.arc(x, y - 30, 12, Math.PI, 0);
+                ctx.fill();
+
+                // Arms
+                ctx.strokeStyle = '#f5d0b0';
+                ctx.lineWidth = 6;
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+                ctx.moveTo(x - 15, y - 5);
+                ctx.lineTo(x - 25, y + 10);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(x + 15, y - 5);
+                ctx.lineTo(x + 25, y + 10);
+                ctx.stroke();
+
+                // Legs
+                ctx.strokeStyle = '#2c3e50';
+                ctx.lineWidth = 7;
+                ctx.beginPath();
+                ctx.moveTo(x - 8, y + 18);
+                ctx.lineTo(x - 12, y + 35);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(x + 8, y + 18);
+                ctx.lineTo(x + 12, y + 35);
+                ctx.stroke();
+
+                // Shoes
+                ctx.fillStyle = '#333';
+                ctx.beginPath();
+                ctx.ellipse(x - 12, y + 38, 8, 4, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.ellipse(x + 12, y + 38, 8, 4, 0, 0, Math.PI * 2);
+                ctx.fill();
+            },
+
+            /**
+             * Render the ball
+             * @param {number} x - X position
+             * @param {number} y - Y position
+             * @param {number} rotation - Rotation angle in radians
+             */
+            renderBall(x, y, rotation) {
+                if (!this.ctx) return;
+                const ctx = this.ctx;
+
+                // Shadow
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                ctx.beginPath();
+                ctx.ellipse(x, y + 12, 12, 4, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Ball body
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(x, y, 10, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Ball pattern (rotating pentagons)
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(rotation);
+
+                ctx.fillStyle = '#333';
+                // Center pentagon
+                ctx.beginPath();
+                for (let i = 0; i < 5; i++) {
+                    const angle = (i * 2 * Math.PI / 5) - Math.PI / 2;
+                    const px = Math.cos(angle) * 4;
+                    const py = Math.sin(angle) * 4;
+                    if (i === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.restore();
+
+                // Ball outline
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.arc(x, y, 10, 0, Math.PI * 2);
+                ctx.stroke();
+            },
+
+            /**
+             * Animate the ball flying into the goal
+             */
+            animateGoal() {
+                if (!this.canvas) return;
+
+                this.stopAnimation();
+                const startTime = Date.now();
+                const duration = 1500;
+                const startX = this.canvas.width / 2;
+                const startY = this.canvas.height * 0.72;
+                const goalX = this.canvas.width / 2;
+                const goalY = this.canvas.height * 0.42;
+
+                const animate = () => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+
+                    // Parabolic arc
+                    const x = startX + (goalX - startX) * progress;
+                    const height = 80 * Math.sin(progress * Math.PI);
+                    const y = startY + (goalY - startY) * progress - height;
+
+                    // Rotation
+                    this.ballRotation = progress * Math.PI * 4;
+
+                    // Re-render field
+                    this.renderField();
+
+                    // Render ball at new position
+                    this.renderBall(x, y, this.ballRotation);
+
+                    if (progress < 1) {
+                        this.animationId = requestAnimationFrame(animate);
+                    } else {
+                        this.showGoalText();
+                        this.ballRotation = 0;
+                    }
+                };
+
+                animate();
+            },
+
+            /**
+             * Animate the ball missing the goal
+             */
+            animateMiss() {
+                if (!this.canvas) return;
+
+                this.stopAnimation();
+                const startTime = Date.now();
+                const duration = 1200;
+                const startX = this.canvas.width / 2;
+                const startY = this.canvas.height * 0.72;
+
+                // Random miss direction
+                const missDirection = Math.random() > 0.5 ? 1 : -1;
+                const endX = startX + missDirection * 100;
+                const endY = startY - 50;
+
+                const animate = () => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+
+                    // Arc trajectory
+                    const x = startX + (endX - startX) * progress;
+                    const height = 40 * Math.sin(progress * Math.PI);
+                    const y = startY + (endY - startY) * progress - height;
+
+                    // Rotation
+                    this.ballRotation = progress * Math.PI * 3;
+
+                    // Re-render field
+                    this.renderField();
+
+                    // Render ball at new position
+                    this.renderBall(x, y, this.ballRotation);
+
+                    if (progress < 1) {
+                        this.animationId = requestAnimationFrame(animate);
+                    } else {
+                        // Show miss text
+                        this.showMissText();
+                        setTimeout(() => {
+                            this.ballRotation = 0;
+                            this.renderField();
+                        }, 1000);
+                    }
+                };
+
+                animate();
+            },
+
+            /**
+             * Show "GOAL!" text animation
+             */
+            showGoalText() {
+                if (!this.ctx || !this.canvas) return;
+                const ctx = this.ctx;
+                const x = this.canvas.width / 2;
+                const y = this.canvas.height * 0.3;
+
+                let opacity = 1;
+                let scale = 1;
+
+                const animate = () => {
+                    // Re-render field
+                    this.renderField();
+
+                    // Draw goal text
+                    ctx.save();
+                    ctx.translate(x, y);
+                    ctx.scale(scale, scale);
+                    ctx.globalAlpha = opacity;
+
+                    // Text shadow
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                    ctx.font = 'bold 60px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('GOAL!', 3, 3);
+
+                    // Text
+                    ctx.fillStyle = '#FFD700';
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 3;
+                    ctx.fillText('GOAL!', 0, 0);
+                    ctx.strokeText('GOAL!', 0, 0);
+
+                    ctx.restore();
+
+                    opacity -= 0.02;
+                    scale += 0.01;
+
+                    if (opacity > 0) {
+                        this.animationId = requestAnimationFrame(animate);
+                    } else {
+                        this.renderField();
+                    }
+                };
+
+                animate();
+            },
+
+            /**
+             * Show miss text
+             */
+            showMissText() {
+                if (!this.ctx || !this.canvas) return;
+                const ctx = this.ctx;
+                const x = this.canvas.width / 2;
+                const y = this.canvas.height * 0.3;
+
+                ctx.save();
+                ctx.fillStyle = '#e74c3c';
+                ctx.font = 'bold 40px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('MISS!', x, y);
+                ctx.restore();
+            },
+
+            /**
+             * Stop any running animation
+             */
+            stopAnimation() {
+                if (this.animationId) {
+                    cancelAnimationFrame(this.animationId);
+                    this.animationId = null;
+                }
+            }
+        };
+
+        // ============================================
+        // TASK 12: VOCABULARY MANAGER
+        // ============================================
+
+        /**
+         * Show vocabulary manager modal
+         */
+        function showVocabularyManager() {
+            // Create modal if it doesn't exist
+            let modal = document.getElementById('vocabularyManagerModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'vocabularyManagerModal';
+                modal.className = 'modal';
+                modal.innerHTML = `
+                    <div class="modal-content" style="max-width: 600px; max-height: 80vh; overflow-y: auto;">
+                        <div class="modal-header">
+                            <h3>词库管理</h3>
+                            <button class="close-btn" onclick="closeVocabularyManager()">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div id="vocabManagerContent"></div>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+
+            // Show modal
+            modal.classList.add('active');
+
+            // Render content
+            renderVocabularyManagerContent();
+        }
+
+        /**
+         * Close vocabulary manager modal
+         */
+        function closeVocabularyManager() {
+            const modal = document.getElementById('vocabularyManagerModal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+
+        /**
+         * Render vocabulary manager content
+         */
+        function renderVocabularyManagerContent() {
+            const container = document.getElementById('vocabManagerContent');
+            if (!container) return;
+
+            const customWords = UserData.getCustomWords();
+            const wrongWords = UserData.getWrongWords();
+
+            let html = `
+                <style>
+                    .vocab-section { margin-bottom: 30px; }
+                    .vocab-section h4 {
+                        color: var(--primary-green);
+                        margin-bottom: 15px;
+                        padding-bottom: 8px;
+                        border-bottom: 2px solid var(--light-green);
+                    }
+                    .word-list {
+                        max-height: 200px;
+                        overflow-y: auto;
+                        border: 1px solid #ddd;
+                        border-radius: 8px;
+                        padding: 10px;
+                    }
+                    .word-item {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 10px;
+                        border-bottom: 1px solid #eee;
+                    }
+                    .word-item:last-child { border-bottom: none; }
+                    .word-info { flex: 1; }
+                    .word-text { font-weight: bold; color: #333; }
+                    .word-phonetic { color: #666; font-size: 0.9em; }
+                    .word-meaning { color: #444; }
+                    .word-actions { display: flex; gap: 5px; }
+                    .btn-small {
+                        padding: 5px 10px;
+                        font-size: 0.85em;
+                        border: none;
+                        border-radius: 4px;
+                        cursor: pointer;
+                    }
+                    .btn-delete {
+                        background: var(--red);
+                        color: white;
+                    }
+                    .btn-delete:hover { background: #c0392b; }
+                    .add-word-form {
+                        background: #f8f9fa;
+                        padding: 15px;
+                        border-radius: 8px;
+                        margin-bottom: 20px;
+                    }
+                    .form-group {
+                        margin-bottom: 10px;
+                    }
+                    .form-group label {
+                        display: block;
+                        margin-bottom: 5px;
+                        font-weight: bold;
+                        color: #333;
+                    }
+                    .form-group input, .form-group select {
+                        width: 100%;
+                        padding: 8px;
+                        border: 1px solid #ddd;
+                        border-radius: 4px;
+                        font-size: 1em;
+                    }
+                    .btn-add {
+                        background: var(--primary-green);
+                        color: white;
+                        padding: 10px 20px;
+                        border: none;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        font-size: 1em;
+                    }
+                    .btn-add:hover { background: var(--light-green); }
+                    .empty-state {
+                        text-align: center;
+                        color: #666;
+                        padding: 20px;
+                        font-style: italic;
+                    }
+                    .wrong-count {
+                        background: var(--red);
+                        color: white;
+                        padding: 2px 8px;
+                        border-radius: 10px;
+                        font-size: 0.8em;
+                    }
+                </style>
+
+                <div class="add-word-form">
+                    <h4 style="margin-top: 0;">添加自定义单词</h4>
+                    <div class="form-group">
+                        <label>单词 (English)</label>
+                        <input type="text" id="newWordInput" placeholder="例如: hello">
+                    </div>
+                    <div class="form-group">
+                        <label>音标</label>
+                        <input type="text" id="newPhoneticInput" placeholder="例如: /həˈləʊ/">
+                    </div>
+                    <div class="form-group">
+                        <label>中文意思</label>
+                        <input type="text" id="newMeaningInput" placeholder="例如: 你好">
+                    </div>
+                    <div class="form-group">
+                        <label>难度</label>
+                        <select id="newDifficultyInput">
+                            <option value="easy">简单</option>
+                            <option value="medium" selected>中等</option>
+                            <option value="hard">困难</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>例句 (可选)</label>
+                        <input type="text" id="newExampleInput" placeholder="例如: Hello, how are you?">
+                    </div>
+                    <button class="btn-add" onclick="addCustomWord()">添加单词</button>
+                </div>
+            `;
+
+            // Custom words section
+            html += '<div class="vocab-section">';
+            html += '<h4>自定义单词 (' + customWords.length + ')</h4>';
+            if (customWords.length === 0) {
+                html += '<div class="empty-state">还没有自定义单词，请添加一些吧！</div>';
+            } else {
+                html += '<div class="word-list">';
+                customWords.forEach(word => {
+                    html += `
+                        <div class="word-item">
+                            <div class="word-info">
+                                <span class="word-text">${word.word}</span>
+                                <span class="word-phonetic">${word.phonetic || ''}</span>
+                                <div class="word-meaning">${word.meaning}</div>
+                            </div>
+                            <div class="word-actions">
+                                <button class="btn-small btn-delete" onclick="deleteCustomWord('${word.id}')">删除</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            html += '</div>';
+
+            // Wrong words section
+            html += '<div class="vocab-section">';
+            html += '<h4>错题本 (' + wrongWords.length + ')</h4>';
+            if (wrongWords.length === 0) {
+                html += '<div class="empty-state">太棒了！你没有错题。</div>';
+            } else {
+                html += '<div class="word-list">';
+                wrongWords.forEach(word => {
+                    html += `
+                        <div class="word-item">
+                            <div class="word-info">
+                                <span class="word-text">${word.word}</span>
+                                <span class="word-phonetic">${word.phonetic || ''}</span>
+                                <div class="word-meaning">${word.meaning}</div>
+                            </div>
+                            <span class="wrong-count">错误 ${word.wrongCount} 次</span>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            html += '</div>';
+
+            container.innerHTML = html;
+        }
+
+        /**
+         * Add a new custom word
+         */
+        function addCustomWord() {
+            const wordInput = document.getElementById('newWordInput');
+            const phoneticInput = document.getElementById('newPhoneticInput');
+            const meaningInput = document.getElementById('newMeaningInput');
+            const difficultyInput = document.getElementById('newDifficultyInput');
+            const exampleInput = document.getElementById('newExampleInput');
+
+            const word = wordInput ? wordInput.value.trim() : '';
+            const phonetic = phoneticInput ? phoneticInput.value.trim() : '';
+            const meaning = meaningInput ? meaningInput.value.trim() : '';
+            const difficulty = difficultyInput ? difficultyInput.value : 'medium';
+            const example = exampleInput ? exampleInput.value.trim() : '';
+
+            // Validation
+            if (!word) {
+                alert('请输入单词！');
+                return;
+            }
+            if (!meaning) {
+                alert('请输入中文意思！');
+                return;
+            }
+
+            // Check for duplicates
+            const existingWords = UserData.getCustomWords();
+            if (existingWords.some(w => w.word.toLowerCase() === word.toLowerCase())) {
+                alert('这个单词已经存在了！');
+                return;
+            }
+
+            // Add the word
+            const newWord = {
+                word: word,
+                phonetic: phonetic || `/${word.toLowerCase()}/`,
+                meaning: meaning,
+                difficulty: difficulty,
+                example: example || `${word}`,
+                exampleTranslation: meaning,
+                category: 'custom'
+            };
+
+            if (UserData.addCustomWord(newWord)) {
+                // Clear inputs
+                if (wordInput) wordInput.value = '';
+                if (phoneticInput) phoneticInput.value = '';
+                if (meaningInput) meaningInput.value = '';
+                if (exampleInput) exampleInput.value = '';
+
+                // Refresh display
+                renderVocabularyManagerContent();
+
+                // Show success message
+                alert('单词添加成功！');
+            } else {
+                alert('添加失败，请重试。');
+            }
+        }
+
+        /**
+         * Delete a custom word
+         * @param {string} wordId - ID of the word to delete
+         */
+        function deleteCustomWord(wordId) {
+            if (!confirm('确定要删除这个单词吗？')) {
+                return;
+            }
+
+            if (UserData.deleteCustomWord(wordId)) {
+                renderVocabularyManagerContent();
+                alert('单词已删除！');
+            } else {
+                alert('删除失败，请重试。');
+            }
+        }
+
+        // ============================================
+        // TASK 13: STATISTICS MODAL
+        // ============================================
+
+        /**
+         * Show statistics modal
+         */
+        function showStats() {
+            // Create modal if it doesn't exist
+            let modal = document.getElementById('statsModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'statsModal';
+                modal.className = 'modal';
+                modal.innerHTML = `
+                    <div class="modal-content" style="max-width: 500px;">
+                        <div class="modal-header">
+                            <h3>学习统计</h3>
+                            <button class="close-btn" onclick="closeStats()">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div id="statsContent"></div>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+
+            // Render stats content
+            const stats = UserData.getStats();
+            const content = document.getElementById('statsContent');
+            if (content) {
+                content.innerHTML = `
+                    <style>
+                        .stats-grid {
+                            display: grid;
+                            grid-template-columns: repeat(2, 1fr);
+                            gap: 15px;
+                            margin-bottom: 20px;
+                        }
+                        .stat-card {
+                            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+                            padding: 15px;
+                            border-radius: 10px;
+                            text-align: center;
+                        }
+                        .stat-value {
+                            font-size: 2em;
+                            font-weight: bold;
+                            color: var(--primary-green);
+                        }
+                        .stat-label {
+                            color: #666;
+                            font-size: 0.9em;
+                            margin-top: 5px;
+                        }
+                        .progress-section {
+                            margin-top: 20px;
+                            padding-top: 20px;
+                            border-top: 1px solid #eee;
+                        }
+                        .progress-bar-container {
+                            background: #e9ecef;
+                            border-radius: 10px;
+                            height: 20px;
+                            overflow: hidden;
+                            margin: 10px 0;
+                        }
+                        .progress-bar {
+                            background: linear-gradient(90deg, var(--primary-green), var(--light-green));
+                            height: 100%;
+                            border-radius: 10px;
+                            transition: width 0.3s ease;
+                        }
+                        .accuracy-high { color: #27ae60; }
+                        .accuracy-medium { color: #f39c12; }
+                        .accuracy-low { color: #e74c3c; }
+                    </style>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.totalWords}</div>
+                            <div class="stat-label">总单词数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.learnedWords}</div>
+                            <div class="stat-label">已学习</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.highScore}</div>
+                            <div class="stat-label">最高分</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.maxStreak}</div>
+                            <div class="stat-label">最高连胜</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.totalGames}</div>
+                            <div class="stat-label">总游戏数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value ${stats.accuracy >= 80 ? 'accuracy-high' : stats.accuracy >= 50 ? 'accuracy-medium' : 'accuracy-low'}">${stats.accuracy}%</div>
+                            <div class="stat-label">正确率</div>
+                        </div>
+                    </div>
+
+                    <div class="progress-section">
+                        <h4 style="color: var(--primary-green); margin-bottom: 15px;">学习进度</h4>
+                        <p style="margin-bottom: 5px;">已学单词: ${stats.learnedWords} / ${stats.totalWords}</p>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: ${stats.totalWords > 0 ? (stats.learnedWords / stats.totalWords * 100) : 0}%"></div>
+                        </div>
+
+                        <p style="margin: 15px 0 5px;">答题情况</p>
+                        <p style="color: #666; font-size: 0.9em;">
+                            正确: <span style="color: #27ae60;">${stats.correctCount}</span> |
+                            错误: <span style="color: #e74c3c;">${stats.wrongCount}</span> |
+                            错题数: <span style="color: #f39c12;">${stats.wrongWordsCount}</span>
+                        </p>
+
+                        <p style="margin: 15px 0 5px;">关卡进度: 关卡 ${stats.levelProgress}</p>
+                    </div>
+                `;
+            }
+
+            // Show modal
+            modal.classList.add('active');
+        }
+
+        /**
+         * Close statistics modal
+         */
+        function closeStats() {
+            const modal = document.getElementById('statsModal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
         }
 
         // ============================================
