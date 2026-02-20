@@ -465,7 +465,325 @@
     </div>
 
     <script>
-        // JavaScript will be added in Task 4+
+        // ============================================
+        // BUILT-IN VOCABULARY DATA (200+ words)
+        // ============================================
+
+        // Easy Level - Colors (12 words)
+        const EASY_COLORS = [
+            { id: 'e1', word: 'red', phonetic: '/red/', meaning: '红色', example: 'The rose is red.', exampleTranslation: '这朵玫瑰是红色的。', difficulty: 'easy', category: 'colors' },
+            { id: 'e2', word: 'blue', phonetic: '/bluː/', meaning: '蓝色', example: 'The sky is blue.', exampleTranslation: '天空是蓝色的。', difficulty: 'easy', category: 'colors' },
+            { id: 'e3', word: 'green', phonetic: '/ɡriːn/', meaning: '绿色', example: 'The grass is green.', exampleTranslation: '草是绿色的。', difficulty: 'easy', category: 'colors' },
+            { id: 'e4', word: 'yellow', phonetic: '/ˈjeləʊ/', meaning: '黄色', example: 'The banana is yellow.', exampleTranslation: '香蕉是黄色的。', difficulty: 'easy', category: 'colors' },
+            { id: 'e5', word: 'orange', phonetic: '/ˈɒrɪndʒ/', meaning: '橙色', example: 'The orange is orange.', exampleTranslation: '橙子是橙色的。', difficulty: 'easy', category: 'colors' },
+            { id: 'e6', word: 'purple', phonetic: '/ˈpɜːpl/', meaning: '紫色', example: 'The grape is purple.', exampleTranslation: '葡萄是紫色的。', difficulty: 'easy', category: 'colors' },
+            { id: 'e7', word: 'pink', phonetic: '/pɪŋk/', meaning: '粉色', example: 'The flower is pink.', exampleTranslation: '这朵花是粉色的。', difficulty: 'easy', category: 'colors' },
+            { id: 'e8', word: 'black', phonetic: '/blæk/', meaning: '黑色', example: 'The cat is black.', exampleTranslation: '这只猫是黑色的。', difficulty: 'easy', category: 'colors' },
+            { id: 'e9', word: 'white', phonetic: '/waɪt/', meaning: '白色', example: 'The snow is white.', exampleTranslation: '雪是白色的。', difficulty: 'easy', category: 'colors' },
+            { id: 'e10', word: 'brown', phonetic: '/braʊn/', meaning: '棕色', example: 'The bear is brown.', exampleTranslation: '熊是棕色的。', difficulty: 'easy', category: 'colors' },
+            { id: 'e11', word: 'gray', phonetic: '/ɡreɪ/', meaning: '灰色', example: 'The elephant is gray.', exampleTranslation: '大象是灰色的。', difficulty: 'easy', category: 'colors' },
+            { id: 'e12', word: 'gold', phonetic: '/ɡəʊld/', meaning: '金色', example: 'The medal is gold.', exampleTranslation: '奖牌是金色的。', difficulty: 'easy', category: 'colors' }
+        ];
+
+        // Easy Level - Animals (15 words)
+        const EASY_ANIMALS = [
+            { id: 'e13', word: 'cat', phonetic: '/kæt/', meaning: '猫', example: 'I have a cat.', exampleTranslation: '我有一只猫。', difficulty: 'easy', category: 'animals' },
+            { id: 'e14', word: 'dog', phonetic: '/dɒɡ/', meaning: '狗', example: 'The dog is friendly.', exampleTranslation: '这只狗很友好。', difficulty: 'easy', category: 'animals' },
+            { id: 'e15', word: 'bird', phonetic: '/bɜːd/', meaning: '鸟', example: 'The bird can fly.', exampleTranslation: '鸟会飞。', difficulty: 'easy', category: 'animals' },
+            { id: 'e16', word: 'fish', phonetic: '/fɪʃ/', meaning: '鱼', example: 'Fish live in water.', exampleTranslation: '鱼生活在水里。', difficulty: 'easy', category: 'animals' },
+            { id: 'e17', word: 'rabbit', phonetic: '/ˈræbɪt/', meaning: '兔子', example: 'The rabbit has long ears.', exampleTranslation: '兔子有长耳朵。', difficulty: 'easy', category: 'animals' },
+            { id: 'e18', word: 'elephant', phonetic: '/ˈelɪfənt/', meaning: '大象', example: 'The elephant is big.', exampleTranslation: '大象很大。', difficulty: 'easy', category: 'animals' },
+            { id: 'e19', word: 'tiger', phonetic: '/ˈtaɪɡə(r)/', meaning: '老虎', example: 'The tiger is strong.', exampleTranslation: '老虎很强壮。', difficulty: 'easy', category: 'animals' },
+            { id: 'e20', word: 'lion', phonetic: '/ˈlaɪən/', meaning: '狮子', example: 'The lion is the king.', exampleTranslation: '狮子是百兽之王。', difficulty: 'easy', category: 'animals' },
+            { id: 'e21', word: 'monkey', phonetic: '/ˈmʌŋki/', meaning: '猴子', example: 'The monkey likes bananas.', exampleTranslation: '猴子喜欢香蕉。', difficulty: 'easy', category: 'animals' },
+            { id: 'e22', word: 'panda', phonetic: '/ˈpændə/', meaning: '熊猫', example: 'Pandas eat bamboo.', exampleTranslation: '熊猫吃竹子。', difficulty: 'easy', category: 'animals' },
+            { id: 'e23', word: 'horse', phonetic: '/hɔːs/', meaning: '马', example: 'The horse runs fast.', exampleTranslation: '马跑得很快。', difficulty: 'easy', category: 'animals' },
+            { id: 'e24', word: 'cow', phonetic: '/kaʊ/', meaning: '奶牛', example: 'The cow gives milk.', exampleTranslation: '奶牛产奶。', difficulty: 'easy', category: 'animals' },
+            { id: 'e25', word: 'pig', phonetic: '/pɪɡ/', meaning: '猪', example: 'The pig is pink.', exampleTranslation: '猪是粉色的。', difficulty: 'easy', category: 'animals' },
+            { id: 'e26', word: 'sheep', phonetic: '/ʃiːp/', meaning: '绵羊', example: 'The sheep has wool.', exampleTranslation: '绵羊有羊毛。', difficulty: 'easy', category: 'animals' },
+            { id: 'e27', word: 'duck', phonetic: '/dʌk/', meaning: '鸭子', example: 'The duck swims in the pond.', exampleTranslation: '鸭子在池塘里游泳。', difficulty: 'easy', category: 'animals' }
+        ];
+
+        // Easy Level - Numbers (15 words)
+        const EASY_NUMBERS = [
+            { id: 'e28', word: 'one', phonetic: '/wʌn/', meaning: '一', example: 'I have one book.', exampleTranslation: '我有一本书。', difficulty: 'easy', category: 'numbers' },
+            { id: 'e29', word: 'two', phonetic: '/tuː/', meaning: '二', example: 'She has two cats.', exampleTranslation: '她有两只猫。', difficulty: 'easy', category: 'numbers' },
+            { id: 'e30', word: 'three', phonetic: '/θriː/', meaning: '三', example: 'There are three apples.', exampleTranslation: '有三个苹果。', difficulty: 'easy', category: 'numbers' },
+            { id: 'e31', word: 'four', phonetic: '/fɔː(r)/', meaning: '四', example: 'I am four years old.', exampleTranslation: '我四岁了。', difficulty: 'easy', category: 'numbers' },
+            { id: 'e32', word: 'five', phonetic: '/faɪv/', meaning: '五', example: 'He has five fingers.', exampleTranslation: '他有五根手指。', difficulty: 'easy', category: 'numbers' },
+            { id: 'e33', word: 'six', phonetic: '/sɪks/', meaning: '六', example: 'There are six eggs.', exampleTranslation: '有六个鸡蛋。', difficulty: 'easy', category: 'numbers' },
+            { id: 'e34', word: 'seven', phonetic: '/ˈsevn/', meaning: '七', example: 'Seven days make a week.', exampleTranslation: '七天是一周。', difficulty: 'easy', category: 'numbers' },
+            { id: 'e35', word: 'eight', phonetic: '/eɪt/', meaning: '八', example: 'The spider has eight legs.', exampleTranslation: '蜘蛛有八条腿。', difficulty: 'easy', category: 'numbers' },
+            { id: 'e36', word: 'nine', phonetic: '/naɪn/', meaning: '九', example: 'Nine is my lucky number.', exampleTranslation: '九是我的幸运数字。', difficulty: 'easy', category: 'numbers' },
+            { id: 'e37', word: 'ten', phonetic: '/ten/', meaning: '十', example: 'I have ten fingers.', exampleTranslation: '我有十根手指。', difficulty: 'easy', category: 'numbers' },
+            { id: 'e38', word: 'hundred', phonetic: '/ˈhʌndrəd/', meaning: '百', example: 'There are hundred students.', exampleTranslation: '有一百名学生。', difficulty: 'easy', category: 'numbers' },
+            { id: 'e39', word: 'thousand', phonetic: '/ˈθaʊznd/', meaning: '千', example: 'A thousand thanks!', exampleTranslation: '万分感谢！', difficulty: 'easy', category: 'numbers' },
+            { id: 'e40', word: 'first', phonetic: '/fɜːst/', meaning: '第一', example: 'I am the first.', exampleTranslation: '我是第一名。', difficulty: 'easy', category: 'numbers' },
+            { id: 'e41', word: 'second', phonetic: '/ˈsekənd/', meaning: '第二', example: 'February is the second month.', exampleTranslation: '二月是一年中的第二个月。', difficulty: 'easy', category: 'numbers' },
+            { id: 'e42', word: 'third', phonetic: '/θɜːd/', meaning: '第三', example: 'He got third place.', exampleTranslation: '他获得了第三名。', difficulty: 'easy', category: 'numbers' }
+        ];
+
+        // Easy Level - Family (12 words)
+        const EASY_FAMILY = [
+            { id: 'e43', word: 'father', phonetic: '/ˈfɑːðə(r)/', meaning: '父亲', example: 'My father is tall.', exampleTranslation: '我的父亲很高。', difficulty: 'easy', category: 'family' },
+            { id: 'e44', word: 'mother', phonetic: '/ˈmʌðə(r)/', meaning: '母亲', example: 'My mother is kind.', exampleTranslation: '我的母亲很善良。', difficulty: 'easy', category: 'family' },
+            { id: 'e45', word: 'brother', phonetic: '/ˈbrʌðə(r)/', meaning: '兄弟', example: 'I have a brother.', exampleTranslation: '我有一个兄弟。', difficulty: 'easy', category: 'family' },
+            { id: 'e46', word: 'sister', phonetic: '/ˈsɪstə(r)/', meaning: '姐妹', example: 'My sister is cute.', exampleTranslation: '我的姐妹很可爱。', difficulty: 'easy', category: 'family' },
+            { id: 'e47', word: 'parent', phonetic: '/ˈpeərənt/', meaning: '父母', example: 'My parents love me.', exampleTranslation: '我的父母爱我。', difficulty: 'easy', category: 'family' },
+            { id: 'e48', word: 'baby', phonetic: '/ˈbeɪbi/', meaning: '婴儿', example: 'The baby is sleeping.', exampleTranslation: '婴儿正在睡觉。', difficulty: 'easy', category: 'family' },
+            { id: 'e49', word: 'grandpa', phonetic: '/ˈɡrænpɑː/', meaning: '爷爷', example: 'Grandpa tells stories.', exampleTranslation: '爷爷讲故事。', difficulty: 'easy', category: 'family' },
+            { id: 'e50', word: 'grandma', phonetic: '/ˈɡrænmɑː/', meaning: '奶奶', meaning: '奶奶', example: 'Grandma cooks well.', exampleTranslation: '奶奶做饭很好吃。', difficulty: 'easy', category: 'family' },
+            { id: 'e51', word: 'son', phonetic: '/sʌn/', meaning: '儿子', example: 'They have one son.', exampleTranslation: '他们有一个儿子。', difficulty: 'easy', category: 'family' },
+            { id: 'e52', word: 'daughter', phonetic: '/ˈdɔːtə(r)/', meaning: '女儿', example: 'Their daughter is five.', exampleTranslation: '他们的女儿五岁了。', difficulty: 'easy', category: 'family' },
+            { id: 'e53', word: 'uncle', phonetic: '/ˈʌŋkl/', meaning: '叔叔', example: 'My uncle is a doctor.', exampleTranslation: '我的叔叔是医生。', difficulty: 'easy', category: 'family' },
+            { id: 'e54', word: 'aunt', phonetic: '/ɑːnt/', meaning: '阿姨', example: 'My aunt lives in Beijing.', exampleTranslation: '我的阿姨住在北京。', difficulty: 'easy', category: 'family' }
+        ];
+
+        // Easy Level - Food (15 words)
+        const EASY_FOOD = [
+            { id: 'e55', word: 'apple', phonetic: '/ˈæpl/', meaning: '苹果', example: 'An apple a day keeps the doctor away.', exampleTranslation: '一天一苹果，医生远离我。', difficulty: 'easy', category: 'food' },
+            { id: 'e56', word: 'banana', phonetic: '/bəˈnɑːnə/', meaning: '香蕉', example: 'Monkeys love bananas.', exampleTranslation: '猴子喜欢香蕉。', difficulty: 'easy', category: 'food' },
+            { id: 'e57', word: 'bread', phonetic: '/bred/', meaning: '面包', example: 'I eat bread for breakfast.', exampleTranslation: '我早餐吃面包。', difficulty: 'easy', category: 'food' },
+            { id: 'e58', word: 'rice', phonetic: '/raɪs/', meaning: '米饭', example: 'Rice is our main food.', exampleTranslation: '米饭是我们的主食。', difficulty: 'easy', category: 'food' },
+            { id: 'e59', word: 'noodle', phonetic: '/ˈnuːdl/', meaning: '面条', example: 'I like eating noodles.', exampleTranslation: '我喜欢吃面条。', difficulty: 'easy', category: 'food' },
+            { id: 'e60', word: 'egg', phonetic: '/eɡ/', meaning: '鸡蛋', example: 'I had an egg this morning.', exampleTranslation: '我今天早上吃了一个鸡蛋。', difficulty: 'easy', category: 'food' },
+            { id: 'e61', word: 'milk', phonetic: '/mɪlk/', meaning: '牛奶', example: 'Drink milk every day.', exampleTranslation: '每天喝牛奶。', difficulty: 'easy', category: 'food' },
+            { id: 'e62', word: 'water', phonetic: '/ˈwɔːtə(r)/', meaning: '水', example: 'I need some water.', exampleTranslation: '我需要一些水。', difficulty: 'easy', category: 'food' },
+            { id: 'e63', word: 'juice', phonetic: '/dʒuːs/', meaning: '果汁', example: 'Orange juice is delicious.', exampleTranslation: '橙汁很美味。', difficulty: 'easy', category: 'food' },
+            { id: 'e64', word: 'cake', phonetic: '/keɪk/', meaning: '蛋糕', example: 'Happy birthday cake!', exampleTranslation: '生日快乐蛋糕！', difficulty: 'easy', category: 'food' },
+            { id: 'e65', word: 'meat', phonetic: '/miːt/', meaning: '肉', example: 'I do not eat meat.', exampleTranslation: '我不吃肉。', difficulty: 'easy', category: 'food' },
+            { id: 'e66', word: 'fish', phonetic: '/fɪʃ/', meaning: '鱼肉', example: 'Fish is good for health.', exampleTranslation: '鱼肉对健康有益。', difficulty: 'easy', category: 'food' },
+            { id: 'e67', word: 'vegetable', phonetic: '/ˈvedʒtəbl/', meaning: '蔬菜', example: 'Eat more vegetables.', exampleTranslation: '多吃蔬菜。', difficulty: 'easy', category: 'food' },
+            { id: 'e68', word: 'fruit', phonetic: '/fruːt/', meaning: '水果', example: 'Fruit is sweet.', exampleTranslation: '水果很甜。', difficulty: 'easy', category: 'food' },
+            { id: 'e69', word: 'sugar', phonetic: '/ˈʃʊɡə(r)/', meaning: '糖', example: 'Too much sugar is bad.', exampleTranslation: '太多糖不好。', difficulty: 'easy', category: 'food' }
+        ];
+
+        // Easy Level - Daily Objects (14 words)
+        const EASY_OBJECTS = [
+            { id: 'e70', word: 'book', phonetic: '/bʊk/', meaning: '书', example: 'I read a book.', exampleTranslation: '我读了一本书。', difficulty: 'easy', category: 'daily objects' },
+            { id: 'e71', word: 'pen', phonetic: '/pen/', meaning: '钢笔', example: 'I write with a pen.', exampleTranslation: '我用钢笔写字。', difficulty: 'easy', category: 'daily objects' },
+            { id: 'e72', word: 'pencil', phonetic: '/ˈpensl/', meaning: '铅笔', example: 'I draw with a pencil.', exampleTranslation: '我用铅笔画。', difficulty: 'easy', category: 'daily objects' },
+            { id: 'e73', word: 'bag', phonetic: '/bæɡ/', meaning: '包', example: 'I carry a bag.', exampleTranslation: '我背着一个包。', difficulty: 'easy', category: 'daily objects' },
+            { id: 'e74', word: 'chair', phonetic: '/tʃeə(r)/', meaning: '椅子', example: 'Sit on the chair.', exampleTranslation: '坐在椅子上。', difficulty: 'easy', category: 'daily objects' },
+            { id: 'e75', word: 'table', phonetic: '/ˈteɪbl/', meaning: '桌子', example: 'Put it on the table.', exampleTranslation: '把它放在桌子上。', difficulty: 'easy', category: 'daily objects' },
+            { id: 'e76', word: 'door', phonetic: '/dɔː(r)/', meaning: '门', example: 'Open the door, please.', exampleTranslation: '请开门。', difficulty: 'easy', category: 'daily objects' },
+            { id: 'e77', word: 'window', phonetic: '/ˈwɪndəʊ/', meaning: '窗户', example: 'Close the window.', exampleTranslation: '关上窗户。', difficulty: 'easy', category: 'daily objects' },
+            { id: 'e78', word: 'bed', phonetic: '/bed/', meaning: '床', example: 'I sleep in my bed.', exampleTranslation: '我在床上睡觉。', difficulty: 'easy', category: 'daily objects' },
+            { id: 'e79', word: 'phone', phonetic: '/fəʊn/', meaning: '电话', example: 'I call my mom on the phone.', exampleTranslation: '我打电话给妈妈。', difficulty: 'easy', category: 'daily objects' },
+            { id: 'e80', word: 'watch', phonetic: '/wɒtʃ/', meaning: '手表', example: 'I wear a watch.', exampleTranslation: '我戴着手表。', difficulty: 'easy', category: 'daily objects' },
+            { id: 'e81', word: 'shoe', phonetic: '/ʃuː/', meaning: '鞋', example: 'Put on your shoes.', exampleTranslation: '穿上你的鞋。', difficulty: 'easy', category: 'daily objects' },
+            { id: 'e82', word: 'shirt', phonetic: '/ʃɜːt/', meaning: '衬衫', example: 'I wear a white shirt.', exampleTranslation: '我穿着一件白衬衫。', difficulty: 'easy', category: 'daily objects' },
+            { id: 'e83', word: 'hat', phonetic: '/hæt/', meaning: '帽子', example: 'I wear a hat in summer.', exampleTranslation: '我夏天戴帽子。', difficulty: 'easy', category: 'daily objects' }
+        ];
+
+        // Medium Level - School (18 words)
+        const MEDIUM_SCHOOL = [
+            { id: 'm1', word: 'student', phonetic: '/ˈstjuːdnt/', meaning: '学生', example: 'I am a student.', exampleTranslation: '我是一名学生。', difficulty: 'medium', category: 'school' },
+            { id: 'm2', word: 'teacher', phonetic: '/ˈtiːtʃə(r)/', meaning: '老师', example: 'My teacher is nice.', exampleTranslation: '我的老师很好。', difficulty: 'medium', category: 'school' },
+            { id: 'm3', word: 'classroom', phonetic: '/ˈklɑːsruːm/', meaning: '教室', example: 'We study in the classroom.', exampleTranslation: '我们在教室里学习。', difficulty: 'medium', category: 'school' },
+            { id: 'm4', word: 'homework', phonetic: '/ˈhəʊmwɜːk/', meaning: '家庭作业', example: 'I do my homework every day.', exampleTranslation: '我每天做家庭作业。', difficulty: 'medium', category: 'school' },
+            { id: 'm5', word: 'exam', phonetic: '/ɪɡˈzæm/', meaning: '考试', example: 'We have an exam tomorrow.', exampleTranslation: '我们明天有考试。', difficulty: 'medium', category: 'school' },
+            { id: 'm6', word: 'lesson', phonetic: '/ˈlesn/', meaning: '课程', example: 'Math is my favorite lesson.', exampleTranslation: '数学是我最喜欢的课程。', difficulty: 'medium', category: 'school' },
+            { id: 'm7', word: 'subject', phonetic: '/ˈsʌbdʒɪkt/', meaning: '科目', example: 'How many subjects do you have?', exampleTranslation: '你有多少门科目？', difficulty: 'medium', category: 'school' },
+            { id: 'm8', word: 'library', phonetic: '/ˈlaɪbrəri/', meaning: '图书馆', example: 'I read books in the library.', exampleTranslation: '我在图书馆看书。', difficulty: 'medium', category: 'school' },
+            { id: 'm9', word: 'blackboard', phonetic: '/ˈblækbɔːd/', meaning: '黑板', example: 'Look at the blackboard.', exampleTranslation: '看黑板。', difficulty: 'medium', category: 'school' },
+            { id: 'm10', word: 'dictionary', phonetic: '/ˈdɪkʃənri/', meaning: '字典', example: 'I use a dictionary to learn words.', exampleTranslation: '我用字典学习单词。', difficulty: 'medium', category: 'school' },
+            { id: 'm11', word: 'notebook', phonetic: '/ˈnəʊtbʊk/', meaning: '笔记本', example: 'Write it in your notebook.', exampleTranslation: '写在你的笔记本上。', difficulty: 'medium', category: 'school' },
+            { id: 'm12', word: 'eraser', phonetic: '/ɪˈreɪzə(r)/', meaning: '橡皮', example: 'I need an eraser.', exampleTranslation: '我需要一块橡皮。', difficulty: 'medium', category: 'school' },
+            { id: 'm13', word: 'ruler', phonetic: '/ˈruːlə(r)/', meaning: '尺子', example: 'Draw a line with the ruler.', exampleTranslation: '用尺子画一条线。', difficulty: 'medium', category: 'school' },
+            { id: 'm14', word: 'scissors', phonetic: '/ˈsɪzəz/', meaning: '剪刀', example: 'Cut the paper with scissors.', exampleTranslation: '用剪刀剪纸。', difficulty: 'medium', category: 'school' },
+            { id: 'm15', word: 'glue', phonetic: '/ɡluː/', meaning: '胶水', example: 'Stick it with glue.', exampleTranslation: '用胶水粘住它。', difficulty: 'medium', category: 'school' },
+            { id: 'm16', word: 'backpack', phonetic: '/ˈbækpæk/', meaning: '背包', example: 'I carry a backpack to school.', exampleTranslation: '我背着背包上学。', difficulty: 'medium', category: 'school' },
+            { id: 'm17', word: 'principal', phonetic: '/ˈprɪnsəpl/', meaning: '校长', example: 'The principal gave a speech.', exampleTranslation: '校长发表了演讲。', difficulty: 'medium', category: 'school' },
+            { id: 'm18', word: 'semester', phonetic: '/sɪˈmestə(r)/', meaning: '学期', example: 'The semester starts in September.', exampleTranslation: '学期从九月开始。', difficulty: 'medium', category: 'school' }
+        ];
+
+        // Medium Level - Daily Activities (18 words)
+        const MEDIUM_DAILY = [
+            { id: 'm19', word: 'breakfast', phonetic: '/ˈbrekfəst/', meaning: '早餐', example: 'I eat breakfast at 7 AM.', exampleTranslation: '我早上7点吃早餐。', difficulty: 'medium', category: 'daily activities' },
+            { id: 'm20', word: 'lunch', phonetic: '/lʌntʃ/', meaning: '午餐', example: 'What do you want for lunch?', exampleTranslation: '你午餐想吃什么？', difficulty: 'medium', category: 'daily activities' },
+            { id: 'm21', word: 'dinner', phonetic: '/ˈdɪnə(r)/', meaning: '晚餐', example: 'Dinner is ready!', exampleTranslation: '晚餐准备好了！', difficulty: 'medium', category: 'daily activities' },
+            { id: 'm22', word: 'exercise', phonetic: '/ˈeksəsaɪz/', meaning: '锻炼', example: 'I exercise every morning.', exampleTranslation: '我每天早上锻炼。', difficulty: 'medium', category: 'daily activities' },
+            { id: 'm23', word: 'shower', phonetic: '/ˈʃaʊə(r)/', meaning: '淋浴', example: 'I take a shower daily.', exampleTranslation: '我每天淋浴。', difficulty: 'medium', category: 'daily activities' },
+            { id: 'm24', word: 'brush', phonetic: '/brʌʃ/', meaning: '刷', example: 'Brush your teeth twice a day.', exampleTranslation: '每天刷两次牙。', difficulty: 'medium', category: 'daily activities' },
+            { id: 'm25', word: 'sleep', phonetic: '/sliːp/', meaning: '睡觉', example: 'I need eight hours of sleep.', exampleTranslation: '我需要八小时的睡眠。', difficulty: 'medium', category: 'daily activities' },
+            { id: 'm26', word: 'wake', phonetic: '/weɪk/', meaning: '醒来', example: 'I wake up at 6 AM.', exampleTranslation: '我早上6点醒来。', difficulty: 'medium', category: 'daily activities' },
+            { id: 'm27', word: 'study', phonetic: '/ˈstʌdi/', meaning: '学习', example: 'I study English every day.', exampleTranslation: '我每天学习英语。', difficulty: 'medium', category: 'daily activities' },
+            { id: 'm28', word: 'read', phonetic: '/riːd/', meaning: '阅读', example: 'I like to read books.', exampleTranslation: '我喜欢读书。', difficulty: 'medium', category: 'daily activities' },
+            { id: 'm29', word: 'write', phonetic: '/raɪt/', meaning: '写', example: 'I write in my diary.', exampleTranslation: '我写日记。', difficulty: 'medium', category: 'daily activities' },
+            { id: 'm30', word: 'draw', phonetic: '/drɔː/', meaning: '画', example: 'I like to draw pictures.', exampleTranslation: '我喜欢画画。', difficulty: 'medium', category: 'daily activities' },
+            { id: 'm31', word: 'cook', phonetic: '/kʊk/', meaning: '烹饪', example: 'My mom cooks dinner.', exampleTranslation: '我妈妈做晚餐。', difficulty: 'medium', category: 'daily activities' },
+            { id: 'm32', word: 'clean', phonetic: '/kliːn/', meaning: '打扫', example: 'I clean my room on weekends.', exampleTranslation: '我周末打扫房间。', difficulty: 'medium', category: 'daily activities' },
+            { id: 'm33', word: 'wash', phonetic: '/wɒʃ/', meaning: '洗', example: 'I wash my hands.', exampleTranslation: '我洗手。', difficulty: 'medium', category: 'daily activities' },
+            { id: 'm34', word: 'walk', phonetic: '/wɔːk/', meaning: '走路', example: 'I walk to school.', exampleTranslation: '我走路去学校。', difficulty: 'medium', category: 'daily activities' },
+            { id: 'm35', word: 'shopping', phonetic: '/ˈʃɒpɪŋ/', meaning: '购物', example: 'I go shopping with my mom.', exampleTranslation: '我和妈妈去购物。', difficulty: 'medium', category: 'daily activities' },
+            { id: 'm36', word: 'hobby', phonetic: '/ˈhɒbi/', meaning: '爱好', example: 'What is your hobby?', exampleTranslation: '你的爱好是什么？', difficulty: 'medium', category: 'daily activities' }
+        ];
+
+        // Medium Level - Sports (18 words)
+        const MEDIUM_SPORTS = [
+            { id: 'm37', word: 'football', phonetic: '/ˈfʊtbɔːl/', meaning: '足球', example: 'I play football after school.', exampleTranslation: '我放学后踢足球。', difficulty: 'medium', category: 'sports' },
+            { id: 'm38', word: 'basketball', phonetic: '/ˈbɑːskɪtbɔːl/', meaning: '篮球', example: 'He is good at basketball.', exampleTranslation: '他擅长篮球。', difficulty: 'medium', category: 'sports' },
+            { id: 'm39', word: 'volleyball', phonetic: '/ˈvɒlibɔːl/', meaning: '排球', example: 'We play volleyball in PE class.', exampleTranslation: '我们在体育课上打排球。', difficulty: 'medium', category: 'sports' },
+            { id: 'm40', word: 'tennis', phonetic: '/ˈtenɪs/', meaning: '网球', example: 'Tennis is fun to play.', exampleTranslation: '打网球很有趣。', difficulty: 'medium', category: 'sports' },
+            { id: 'm41', word: 'swimming', phonetic: '/ˈswɪmɪŋ/', meaning: '游泳', example: 'I go swimming in summer.', exampleTranslation: '我夏天去游泳。', difficulty: 'medium', category: 'sports' },
+            { id: 'm42', word: 'running', phonetic: '/ˈrʌnɪŋ/', meaning: '跑步', example: 'Running keeps me healthy.', exampleTranslation: '跑步让我保持健康。', difficulty: 'medium', category: 'sports' },
+            { id: 'm43', word: 'jump', phonetic: '/dʒʌmp/', meaning: '跳', example: 'Can you jump high?', exampleTranslation: '你能跳得高吗？', difficulty: 'medium', category: 'sports' },
+            { id: 'm44', word: 'kick', phonetic: '/kɪk/', meaning: '踢', example: 'Kick the ball to me.', exampleTranslation: '把球踢给我。', difficulty: 'medium', category: 'sports' },
+            { id: 'm45', word: 'throw', phonetic: '/θrəʊ/', meaning: '扔', example: 'Throw the ball carefully.', exampleTranslation: '小心地扔球。', difficulty: 'medium', category: 'sports' },
+            { id: 'm46', word: 'catch', phonetic: '/kætʃ/', meaning: '接', example: 'Catch the ball!', exampleTranslation: '接住球！', difficulty: 'medium', category: 'sports' },
+            { id: 'm47', word: 'goal', phonetic: '/ɡəʊl/', meaning: '进球', example: 'He scored a goal!', exampleTranslation: '他进了一个球！', difficulty: 'medium', category: 'sports' },
+            { id: 'm48', word: 'team', phonetic: '/tiːm/', meaning: '队伍', example: 'Our team won the game.', exampleTranslation: '我们队赢了比赛。', difficulty: 'medium', category: 'sports' },
+            { id: 'm49', word: 'player', phonetic: '/ˈpleɪə(r)/', meaning: '运动员', example: 'He is a famous player.', exampleTranslation: '他是一位著名的运动员。', difficulty: 'medium', category: 'sports' },
+            { id: 'm50', word: 'match', phonetic: '/mætʃ/', meaning: '比赛', example: 'The match starts at 3 PM.', exampleTranslation: '比赛下午3点开始。', difficulty: 'medium', category: 'sports' },
+            { id: 'm51', word: 'stadium', phonetic: '/ˈsteɪdiəm/', meaning: '体育场', example: 'The stadium is very big.', exampleTranslation: '体育场很大。', difficulty: 'medium', category: 'sports' },
+            { id: 'm52', word: 'training', phonetic: '/ˈtreɪnɪŋ/', meaning: '训练', example: 'We have training every day.', exampleTranslation: '我们每天训练。', difficulty: 'medium', category: 'sports' },
+            { id: 'm53', word: 'champion', phonetic: '/ˈtʃæmpiən/', meaning: '冠军', example: 'They are the champions!', exampleTranslation: '他们是冠军！', difficulty: 'medium', category: 'sports' },
+            { id: 'm54', word: 'medal', phonetic: '/ˈmedl/', meaning: '奖牌', example: 'She won a gold medal.', exampleTranslation: '她赢得了金牌。', difficulty: 'medium', category: 'sports' }
+        ];
+
+        // Medium Level - Weather (14 words)
+        const MEDIUM_WEATHER = [
+            { id: 'm55', word: 'weather', phonetic: '/ˈweðə(r)/', meaning: '天气', example: 'How is the weather today?', exampleTranslation: '今天天气怎么样？', difficulty: 'medium', category: 'weather' },
+            { id: 'm56', word: 'sunny', phonetic: '/ˈsʌni/', meaning: '晴朗的', example: 'It is sunny today.', exampleTranslation: '今天天气晴朗。', difficulty: 'medium', category: 'weather' },
+            { id: 'm57', word: 'rainy', phonetic: '/ˈreɪni/', meaning: '下雨的', example: 'Take an umbrella, it is rainy.', exampleTranslation: '带把伞，下雨了。', difficulty: 'medium', category: 'weather' },
+            { id: 'm58', word: 'cloudy', phonetic: '/ˈklaʊdi/', meaning: '多云的', example: 'The sky is cloudy.', exampleTranslation: '天空多云。', difficulty: 'medium', category: 'weather' },
+            { id: 'm59', word: 'windy', phonetic: '/ˈwɪndi/', meaning: '有风的', example: 'It is very windy today.', exampleTranslation: '今天风很大。', difficulty: 'medium', category: 'weather' },
+            { id: 'm60', word: 'snowy', phonetic: '/ˈsnəʊi/', meaning: '下雪的', example: 'It is snowy in winter.', exampleTranslation: '冬天下雪。', difficulty: 'medium', category: 'weather' },
+            { id: 'm61', word: 'hot', phonetic: '/hɒt/', meaning: '热的', example: 'Summer is hot.', exampleTranslation: '夏天很热。', difficulty: 'medium', category: 'weather' },
+            { id: 'm62', word: 'cold', phonetic: '/kəʊld/', meaning: '冷的', example: 'Winter is cold.', exampleTranslation: '冬天很冷。', difficulty: 'medium', category: 'weather' },
+            { id: 'm63', word: 'warm', phonetic: '/wɔːm/', meaning: '温暖的', example: 'Spring is warm.', exampleTranslation: '春天很温暖。', difficulty: 'medium', category: 'weather' },
+            { id: 'm64', word: 'cool', phonetic: '/kuːl/', meaning: '凉爽的', example: 'Autumn is cool.', exampleTranslation: '秋天很凉爽。', difficulty: 'medium', category: 'weather' },
+            { id: 'm65', word: 'temperature', phonetic: '/ˈtemprətʃə(r)/', meaning: '温度', example: 'The temperature is 25 degrees.', exampleTranslation: '温度是25度。', difficulty: 'medium', category: 'weather' },
+            { id: 'm66', word: 'season', phonetic: '/ˈsiːzn/', meaning: '季节', example: 'There are four seasons.', exampleTranslation: '一年有四个季节。', difficulty: 'medium', category: 'weather' },
+            { id: 'm67', word: 'spring', phonetic: '/sprɪŋ/', meaning: '春天', example: 'Flowers bloom in spring.', exampleTranslation: '春天花儿盛开。', difficulty: 'medium', category: 'weather' },
+            { id: 'm68', word: 'autumn', phonetic: '/ˈɔːtəm/', meaning: '秋天', example: 'Leaves fall in autumn.', exampleTranslation: '秋天落叶。', difficulty: 'medium', category: 'weather' }
+        ];
+
+        // Medium Level - Places (12 words)
+        const MEDIUM_PLACES = [
+            { id: 'm69', word: 'hospital', phonetic: '/ˈhɒspɪtl/', meaning: '医院', example: 'The doctor works at the hospital.', exampleTranslation: '医生在医院工作。', difficulty: 'medium', category: 'places' },
+            { id: 'm70', word: 'restaurant', phonetic: '/ˈrestrɒnt/', meaning: '餐厅', example: 'Let us eat at a restaurant.', exampleTranslation: '我们去餐厅吃饭吧。', difficulty: 'medium', category: 'places' },
+            { id: 'm71', word: 'supermarket', phonetic: '/ˈsuːpəmɑːkɪt/', meaning: '超市', example: 'I buy food at the supermarket.', exampleTranslation: '我在超市买食物。', difficulty: 'medium', category: 'places' },
+            { id: 'm72', word: 'park', phonetic: '/pɑːk/', meaning: '公园', example: 'We play in the park.', exampleTranslation: '我们在公园玩。', difficulty: 'medium', category: 'places' },
+            { id: 'm73', word: 'museum', phonetic: '/mjuˈziːəm/', meaning: '博物馆', example: 'The museum has old things.', exampleTranslation: '博物馆有古老的东西。', difficulty: 'medium', category: 'places' },
+            { id: 'm74', word: 'cinema', phonetic: '/ˈsɪnəmə/', meaning: '电影院', example: 'I watch movies at the cinema.', exampleTranslation: '我在电影院看电影。', difficulty: 'medium', category: 'places' },
+            { id: 'm75', word: 'airport', phonetic: '/ˈeəpɔːt/', meaning: '机场', example: 'We go to the airport to fly.', exampleTranslation: '我们去机场坐飞机。', difficulty: 'medium', category: 'places' },
+            { id: 'm76', word: 'station', phonetic: '/ˈsteɪʃn/', meaning: '车站', example: 'The train leaves from the station.', exampleTranslation: '火车从车站出发。', difficulty: 'medium', category: 'places' },
+            { id: 'm77', word: 'hotel', phonetic: '/həʊˈtel/', meaning: '酒店', example: 'We stay at a hotel.', exampleTranslation: '我们住在酒店。', difficulty: 'medium', category: 'places' },
+            { id: 'm78', word: 'bank', phonetic: '/bæŋk/', meaning: '银行', example: 'I keep money in the bank.', exampleTranslation: '我把钱存在银行。', difficulty: 'medium', category: 'places' },
+            { id: 'm79', word: 'factory', phonetic: '/ˈfæktri/', meaning: '工厂', example: 'My father works in a factory.', exampleTranslation: '我父亲在工厂工作。', difficulty: 'medium', category: 'places' },
+            { id: 'm80', word: 'theater', phonetic: '/ˈθɪətə(r)/', meaning: '剧院', example: 'We watch plays at the theater.', exampleTranslation: '我们在剧院看戏剧。', difficulty: 'medium', category: 'places' }
+        ];
+
+        // Hard Level - Science (20 words)
+        const HARD_SCIENCE = [
+            { id: 'h1', word: 'experiment', phonetic: '/ɪkˈsperɪmənt/', meaning: '实验', example: 'We did a science experiment.', exampleTranslation: '我们做了一个科学实验。', difficulty: 'hard', category: 'science' },
+            { id: 'h2', word: 'laboratory', phonetic: '/ləˈbɒrətri/', meaning: '实验室', example: 'Scientists work in the laboratory.', exampleTranslation: '科学家在实验室工作。', difficulty: 'hard', category: 'science' },
+            { id: 'h3', word: 'chemistry', phonetic: '/ˈkemɪstri/', meaning: '化学', example: 'Chemistry studies matter.', exampleTranslation: '化学研究物质。', difficulty: 'hard', category: 'science' },
+            { id: 'h4', word: 'biology', phonetic: '/baɪˈɒlədʒi/', meaning: '生物学', example: 'Biology is the study of life.', exampleTranslation: '生物学是研究生命的学科。', difficulty: 'hard', category: 'science' },
+            { id: 'h5', word: 'physics', phonetic: '/ˈfɪzɪks/', meaning: '物理学', example: 'Physics explains how things move.', exampleTranslation: '物理学解释物体如何运动。', difficulty: 'hard', category: 'science' },
+            { id: 'h6', word: 'molecule', phonetic: '/ˈmɒlɪkjuːl/', meaning: '分子', example: 'Water is made of molecules.', exampleTranslation: '水是由分子组成的。', difficulty: 'hard', category: 'science' },
+            { id: 'h7', word: 'organism', phonetic: '/ˈɔːɡənɪzəm/', meaning: '生物体', example: 'A plant is a living organism.', exampleTranslation: '植物是一种生物体。', difficulty: 'hard', category: 'science' },
+            { id: 'h8', word: 'evolution', phonetic: '/ˌiːvəˈluːʃn/', meaning: '进化', example: 'Evolution explains how species change.', exampleTranslation: '进化解释了物种如何变化。', difficulty: 'hard', category: 'science' },
+            { id: 'h9', word: 'ecosystem', phonetic: '/ˈiːkəʊsɪstəm/', meaning: '生态系统', example: 'The forest is an ecosystem.', exampleTranslation: '森林是一个生态系统。', difficulty: 'hard', category: 'science' },
+            { id: 'h10', word: 'photosynthesis', phonetic: '/ˌfəʊtəʊˈsɪnθəsɪs/', meaning: '光合作用', example: 'Plants use photosynthesis to make food.', exampleTranslation: '植物利用光合作用制造食物。', difficulty: 'hard', category: 'science' },
+            { id: 'h11', word: 'gravity', phonetic: '/ˈɡrævəti/', meaning: '重力', example: 'Gravity pulls things down.', exampleTranslation: '重力把物体往下拉。', difficulty: 'hard', category: 'science' },
+            { id: 'h12', word: 'magnetism', phonetic: '/ˈmæɡnətɪzəm/', meaning: '磁性', example: 'Magnetism attracts metal.', exampleTranslation: '磁性吸引金属。', difficulty: 'hard', category: 'science' },
+            { id: 'h13', word: 'electricity', phonetic: '/ɪˌlekˈtrɪsəti/', meaning: '电', example: 'Electricity powers our homes.', exampleTranslation: '电为我们的家供电。', difficulty: 'hard', category: 'science' },
+            { id: 'h14', word: 'atom', phonetic: '/ˈætəm/', meaning: '原子', example: 'An atom is very small.', exampleTranslation: '原子非常小。', difficulty: 'hard', category: 'science' },
+            { id: 'h15', word: 'cell', phonetic: '/sel/', meaning: '细胞', meaning: '细胞', example: 'The human body has many cells.', exampleTranslation: '人体有许多细胞。', difficulty: 'hard', category: 'science' },
+            { id: 'h16', word: 'microscope', phonetic: '/ˈmaɪkrəskəʊp/', meaning: '显微镜', example: 'We use a microscope to see small things.', exampleTranslation: '我们用显微镜看微小的东西。', difficulty: 'hard', category: 'science' },
+            { id: 'h17', word: 'telescope', phonetic: '/ˈtelɪskəʊp/', meaning: '望远镜', example: 'Astronomers use telescopes.', exampleTranslation: '天文学家使用望远镜。', difficulty: 'hard', category: 'science' },
+            { id: 'h18', word: 'galaxy', phonetic: '/ˈɡæləksi/', meaning: '星系', example: 'The Milky Way is a galaxy.', exampleTranslation: '银河系是一个星系。', difficulty: 'hard', category: 'science' },
+            { id: 'h19', word: 'planet', phonetic: '/ˈplænɪt/', meaning: '行星', example: 'Earth is a planet.', exampleTranslation: '地球是一颗行星。', difficulty: 'hard', category: 'science' },
+            { id: 'h20', word: 'universe', phonetic: '/ˈjuːnɪvɜːs/', meaning: '宇宙', example: 'The universe is very large.', exampleTranslation: '宇宙非常大。', difficulty: 'hard', category: 'science' }
+        ];
+
+        // Hard Level - Technology (15 words)
+        const HARD_TECHNOLOGY = [
+            { id: 'h21', word: 'computer', phonetic: '/kəmˈpjuːtə(r)/', meaning: '计算机', example: 'I use a computer for work.', exampleTranslation: '我用计算机工作。', difficulty: 'hard', category: 'technology' },
+            { id: 'h22', word: 'internet', phonetic: '/ˈɪntənet/', meaning: '互联网', example: 'The internet connects people.', exampleTranslation: '互联网连接人们。', difficulty: 'hard', category: 'technology' },
+            { id: 'h23', word: 'software', phonetic: '/ˈsɒftweə(r)/', meaning: '软件', example: 'I install new software.', exampleTranslation: '我安装新软件。', difficulty: 'hard', category: 'technology' },
+            { id: 'h24', word: 'hardware', phonetic: '/ˈhɑːdweə(r)/', meaning: '硬件', example: 'The computer hardware is new.', exampleTranslation: '计算机硬件是新的。', difficulty: 'hard', category: 'technology' },
+            { id: 'h25', word: 'algorithm', phonetic: '/ˈælɡərɪðəm/', meaning: '算法', example: 'The app uses a smart algorithm.', exampleTranslation: '这个应用使用智能算法。', difficulty: 'hard', category: 'technology' },
+            { id: 'h26', word: 'database', phonetic: '/ˈdeɪtəbeɪs/', meaning: '数据库', example: 'The database stores information.', exampleTranslation: '数据库存储信息。', difficulty: 'hard', category: 'technology' },
+            { id: 'h27', word: 'network', phonetic: '/ˈnetwɜːk/', meaning: '网络', example: 'The computer network is down.', exampleTranslation: '计算机网络断了。', difficulty: 'hard', category: 'technology' },
+            { id: 'h28', word: 'program', phonetic: '/ˈprəʊɡræm/', meaning: '程序', example: 'I write computer programs.', exampleTranslation: '我写计算机程序。', difficulty: 'hard', category: 'technology' },
+            { id: 'h29', word: 'artificial', phonetic: '/ˌɑːtɪˈfɪʃl/', meaning: '人造的', example: 'Artificial intelligence is growing.', exampleTranslation: '人工智能正在发展。', difficulty: 'hard', category: 'technology' },
+            { id: 'h30', word: 'digital', phonetic: '/ˈdɪdʒɪtl/', meaning: '数字的', example: 'We live in a digital age.', exampleTranslation: '我们生活在数字时代。', difficulty: 'hard', category: 'technology' },
+            { id: 'h31', word: 'virtual', phonetic: '/ˈvɜːtʃuəl/', meaning: '虚拟的', example: 'Virtual reality is amazing.', exampleTranslation: '虚拟现实令人惊叹。', difficulty: 'hard', category: 'technology' },
+            { id: 'h32', word: 'robot', phonetic: '/ˈrəʊbɒt/', meaning: '机器人', example: 'Robots can do many tasks.', exampleTranslation: '机器人可以做很多任务。', difficulty: 'hard', category: 'technology' },
+            { id: 'h33', word: 'satellite', phonetic: '/ˈsætəlaɪt/', meaning: '卫星', example: 'Satellites orbit the Earth.', exampleTranslation: '卫星围绕地球运行。', difficulty: 'hard', category: 'technology' },
+            { id: 'h34', word: 'engineer', phonetic: '/ˌendʒɪˈnɪə(r)/', meaning: '工程师', example: 'My brother is an engineer.', exampleTranslation: '我哥哥是工程师。', difficulty: 'hard', category: 'technology' },
+            { id: 'h35', word: 'innovation', phonetic: '/ˌɪnəˈveɪʃn/', meaning: '创新', example: 'Innovation drives progress.', exampleTranslation: '创新推动进步。', difficulty: 'hard', category: 'technology' }
+        ];
+
+        // Hard Level - Abstract Nouns (15 words)
+        const HARD_ABSTRACT = [
+            { id: 'h36', word: 'freedom', phonetic: '/ˈfriːdəm/', meaning: '自由', example: 'Freedom is important.', exampleTranslation: '自由很重要。', difficulty: 'hard', category: 'abstract nouns' },
+            { id: 'h37', word: 'justice', phonetic: '/ˈdʒʌstɪs/', meaning: '正义', example: 'Justice must be served.', exampleTranslation: '正义必须得到伸张。', difficulty: 'hard', category: 'abstract nouns' },
+            { id: 'h38', word: 'democracy', phonetic: '/dɪˈmɒkrəsi/', meaning: '民主', example: 'Democracy means people rule.', exampleTranslation: '民主意味着人民当家作主。', difficulty: 'hard', category: 'abstract nouns' },
+            { id: 'h39', word: 'courage', phonetic: '/ˈkʌrɪdʒ/', meaning: '勇气', example: 'It takes courage to speak up.', exampleTranslation: '大声说出来需要勇气。', difficulty: 'hard', category: 'abstract nouns' },
+            { id: 'h40', word: 'wisdom', phonetic: '/ˈwɪzdəm/', meaning: '智慧', example: 'Wisdom comes with age.', exampleTranslation: '智慧随着年龄增长。', difficulty: 'hard', category: 'abstract nouns' },
+            { id: 'h41', word: 'patience', phonetic: '/ˈpeɪʃns/', meaning: '耐心', example: 'Patience is a virtue.', exampleTranslation: '耐心是一种美德。', difficulty: 'hard', category: 'abstract nouns' },
+            { id: 'h42', word: 'honesty', phonetic: '/ˈɒnəsti/', meaning: '诚实', example: 'Honesty is the best policy.', exampleTranslation: '诚实是最好的策略。', difficulty: 'hard', category: 'abstract nouns' },
+            { id: 'h43', word: 'loyalty', phonetic: '/ˈlɔɪəlti/', meaning: '忠诚', example: 'Dogs show great loyalty.', exampleTranslation: '狗表现出极大的忠诚。', difficulty: 'hard', category: 'abstract nouns' },
+            { id: 'h44', word: 'ambition', phonetic: '/æmˈbɪʃn/', meaning: '雄心', example: 'His ambition is to be a doctor.', exampleTranslation: '他的雄心是成为一名医生。', difficulty: 'hard', category: 'abstract nouns' },
+            { id: 'h45', word: 'creativity', phonetic: '/ˌkriːeɪˈtɪvəti/', meaning: '创造力', example: 'Creativity is important in art.', exampleTranslation: '创造力在艺术中很重要。', difficulty: 'hard', category: 'abstract nouns' },
+            { id: 'h46', word: 'curiosity', phonetic: '/ˌkjʊəriˈɒsəti/', meaning: '好奇心', example: 'Curiosity leads to discovery.', exampleTranslation: '好奇心带来发现。', difficulty: 'hard', category: 'abstract nouns' },
+            { id: 'h47', word: 'gratitude', phonetic: '/ˈɡrætɪtjuːd/', meaning: '感激', example: 'I feel gratitude for your help.', exampleTranslation: '我对你的帮助心存感激。', difficulty: 'hard', category: 'abstract nouns' },
+            { id: 'h48', word: 'humility', phonetic: '/hjuːˈmɪləti/', meaning: '谦逊', example: 'Humility makes you likable.', exampleTranslation: '谦逊让你受欢迎。', difficulty: 'hard', category: 'abstract nouns' },
+            { id: 'h49', word: 'integrity', phonetic: '/ɪnˈteɡrəti/', meaning: '正直', example: 'He is a man of integrity.', exampleTranslation: '他是一个正直的人。', difficulty: 'hard', category: 'abstract nouns' },
+            { id: 'h50', word: 'perseverance', phonetic: '/ˌpɜːsəˈvɪərəns/', meaning: '毅力', example: 'Perseverance leads to success.', exampleTranslation: '毅力带来成功。', difficulty: 'hard', category: 'abstract nouns' }
+        ];
+
+        // Hard Level - Academic Words (15 words)
+        const HARD_ACADEMIC = [
+            { id: 'h51', word: 'analysis', phonetic: '/əˈnæləsɪs/', meaning: '分析', example: 'The analysis shows the results.', exampleTranslation: '分析显示了结果。', difficulty: 'hard', category: 'academic words' },
+            { id: 'h52', word: 'concept', phonetic: '/ˈkɒnsept/', meaning: '概念', example: 'This is a difficult concept.', exampleTranslation: '这是一个难懂的概念。', difficulty: 'hard', category: 'academic words' },
+            { id: 'h53', word: 'conclusion', phonetic: '/kənˈkluːʒn/', meaning: '结论', example: 'What is your conclusion?', exampleTranslation: '你的结论是什么？', difficulty: 'hard', category: 'academic words' },
+            { id: 'h54', word: 'evidence', phonetic: '/ˈevɪdəns/', meaning: '证据', example: 'We need more evidence.', exampleTranslation: '我们需要更多证据。', difficulty: 'hard', category: 'academic words' },
+            { id: 'h55', word: 'hypothesis', phonetic: '/haɪˈpɒθəsɪs/', meaning: '假设', example: 'Test your hypothesis.', exampleTranslation: '检验你的假设。', difficulty: 'hard', category: 'academic words' },
+            { id: 'h56', word: 'method', phonetic: '/ˈmeθəd/', meaning: '方法', example: 'What method did you use?', exampleTranslation: '你用了什么方法？', difficulty: 'hard', category: 'academic words' },
+            { id: 'h57', word: 'principle', phonetic: '/ˈprɪnsəpl/', meaning: '原理', example: 'Understand the principle first.', exampleTranslation: '先理解原理。', difficulty: 'hard', category: 'academic words' },
+            { id: 'h58', word: 'process', phonetic: '/ˈprəʊses/', meaning: '过程', example: 'Learning is a slow process.', exampleTranslation: '学习是一个缓慢的过程。', difficulty: 'hard', category: 'academic words' },
+            { id: 'h59', word: 'research', phonetic: '/rɪˈsɜːtʃ/', meaning: '研究', example: 'Scientists do research.', exampleTranslation: '科学家做研究。', difficulty: 'hard', category: 'academic words' },
+            { id: 'h60', word: 'theory', phonetic: '/ˈθɪəri/', meaning: '理论', example: 'This theory explains the data.', exampleTranslation: '这个理论解释了数据。', difficulty: 'hard', category: 'academic words' },
+            { id: 'h61', word: 'significant', phonetic: '/sɪɡˈnɪfɪkənt/', meaning: '重要的', example: 'This is a significant finding.', exampleTranslation: '这是一个重要的发现。', difficulty: 'hard', category: 'academic words' },
+            { id: 'h62', word: 'consequence', phonetic: '/ˈkɒnsɪkwəns/', meaning: '后果', example: 'Every action has consequences.', exampleTranslation: '每个行动都有后果。', difficulty: 'hard', category: 'academic words' },
+            { id: 'h63', word: 'perspective', phonetic: '/pəˈspektɪv/', meaning: '视角', example: 'See it from my perspective.', exampleTranslation: '从我的视角来看。', difficulty: 'hard', category: 'academic words' },
+            { id: 'h64', word: 'phenomenon', phonetic: '/fəˈnɒmɪnən/', meaning: '现象', example: 'This is a common phenomenon.', exampleTranslation: '这是一个普遍现象。', difficulty: 'hard', category: 'academic words' },
+            { id: 'h65', word: 'sufficient', phonetic: '/səˈfɪʃnt/', meaning: '足够的', example: 'We have sufficient time.', exampleTranslation: '我们有足够的时间。', difficulty: 'hard', category: 'academic words' }
+        ];
+
+        // Combine all vocabulary arrays
+        const BUILTIN_WORDS = [
+            ...EASY_COLORS,
+            ...EASY_ANIMALS,
+            ...EASY_NUMBERS,
+            ...EASY_FAMILY,
+            ...EASY_FOOD,
+            ...EASY_OBJECTS,
+            ...MEDIUM_SCHOOL,
+            ...MEDIUM_DAILY,
+            ...MEDIUM_SPORTS,
+            ...MEDIUM_WEATHER,
+            ...MEDIUM_PLACES,
+            ...HARD_SCIENCE,
+            ...HARD_TECHNOLOGY,
+            ...HARD_ABSTRACT,
+            ...HARD_ACADEMIC
+        ];
+
+        // Create ALL_WORDS by combining built-in words (can be extended with custom words)
+        const ALL_WORDS = [...BUILTIN_WORDS];
+
+        // Verify word count
+        console.log('Total words:', ALL_WORDS.length);
+        console.log('Easy words:', ALL_WORDS.filter(w => w.difficulty === 'easy').length);
+        console.log('Medium words:', ALL_WORDS.filter(w => w.difficulty === 'medium').length);
+        console.log('Hard words:', ALL_WORDS.filter(w => w.difficulty === 'hard').length);
     </script>
 </body>
 </html>
