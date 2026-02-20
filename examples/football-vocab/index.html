@@ -784,6 +784,273 @@
         console.log('Easy words:', ALL_WORDS.filter(w => w.difficulty === 'easy').length);
         console.log('Medium words:', ALL_WORDS.filter(w => w.difficulty === 'medium').length);
         console.log('Hard words:', ALL_WORDS.filter(w => w.difficulty === 'hard').length);
+
+        // ============================================
+        // USER DATA MANAGEMENT (LocalStorage)
+        // ============================================
+
+        const UserData = {
+            KEYS: {
+                PROGRESS: 'football_vocab_progress',
+                CUSTOM_WORDS: 'football_vocab_custom'
+            },
+
+            defaultProgress: {
+                learnedWords: [],
+                wrongWords: [],
+                highScore: 0,
+                maxStreak: 0,
+                levelProgress: 1,
+                totalGames: 0,
+                correctCount: 0,
+                wrongCount: 0
+            },
+
+            /**
+             * Load progress from localStorage
+             * @returns {Object} User progress object
+             */
+            getProgress() {
+                try {
+                    const data = localStorage.getItem(this.KEYS.PROGRESS);
+                    if (data) {
+                        return JSON.parse(data);
+                    }
+                } catch (e) {
+                    console.error('Error loading progress:', e);
+                }
+                return { ...this.defaultProgress };
+            },
+
+            /**
+             * Save progress to localStorage
+             * @param {Object} progress - Progress object to save
+             */
+            saveProgress(progress) {
+                try {
+                    localStorage.setItem(this.KEYS.PROGRESS, JSON.stringify(progress));
+                } catch (e) {
+                    console.error('Error saving progress:', e);
+                }
+            },
+
+            /**
+             * Load custom words from localStorage
+             * @returns {Array} Array of custom word objects
+             */
+            getCustomWords() {
+                try {
+                    const data = localStorage.getItem(this.KEYS.CUSTOM_WORDS);
+                    if (data) {
+                        return JSON.parse(data);
+                    }
+                } catch (e) {
+                    console.error('Error loading custom words:', e);
+                }
+                return [];
+            },
+
+            /**
+             * Save custom words to localStorage
+             * @param {Array} words - Array of custom word objects
+             */
+            saveCustomWords(words) {
+                try {
+                    localStorage.setItem(this.KEYS.CUSTOM_WORDS, JSON.stringify(words));
+                } catch (e) {
+                    console.error('Error saving custom words:', e);
+                }
+            },
+
+            /**
+             * Add a new custom word
+             * @param {Object} word - Word object to add
+             * @returns {boolean} Success status
+             */
+            addCustomWord(word) {
+                try {
+                    const words = this.getCustomWords();
+                    // Generate unique ID for custom word
+                    const customId = 'custom_' + Date.now();
+                    const newWord = {
+                        ...word,
+                        id: customId,
+                        isCustom: true
+                    };
+                    words.push(newWord);
+                    this.saveCustomWords(words);
+                    return true;
+                } catch (e) {
+                    console.error('Error adding custom word:', e);
+                    return false;
+                }
+            },
+
+            /**
+             * Delete a custom word by ID
+             * @param {string} wordId - ID of word to delete
+             * @returns {boolean} Success status
+             */
+            deleteCustomWord(wordId) {
+                try {
+                    const words = this.getCustomWords();
+                    const filtered = words.filter(w => w.id !== wordId);
+                    this.saveCustomWords(filtered);
+                    return true;
+                } catch (e) {
+                    console.error('Error deleting custom word:', e);
+                    return false;
+                }
+            },
+
+            /**
+             * Mark a word as learned
+             * @param {string} wordId - ID of word to mark
+             */
+            markLearned(wordId) {
+                const progress = this.getProgress();
+                if (!progress.learnedWords.includes(wordId)) {
+                    progress.learnedWords.push(wordId);
+                    this.saveProgress(progress);
+                }
+            },
+
+            /**
+             * Mark a word as wrong (adds to wrong words list with count)
+             * @param {string} wordId - ID of word to mark
+             */
+            markWrong(wordId) {
+                const progress = this.getProgress();
+                const existing = progress.wrongWords.find(w => w.id === wordId);
+                if (existing) {
+                    existing.count++;
+                } else {
+                    progress.wrongWords.push({ id: wordId, count: 1 });
+                }
+                progress.wrongCount++;
+                this.saveProgress(progress);
+            },
+
+            /**
+             * Mark a word as correct (reduces wrong count if exists)
+             * @param {string} wordId - ID of word to mark
+             */
+            markCorrect(wordId) {
+                const progress = this.getProgress();
+                const existing = progress.wrongWords.find(w => w.id === wordId);
+                if (existing) {
+                    existing.count = Math.max(0, existing.count - 1);
+                    if (existing.count === 0) {
+                        progress.wrongWords = progress.wrongWords.filter(w => w.id !== wordId);
+                    }
+                }
+                progress.correctCount++;
+                this.saveProgress(progress);
+            },
+
+            /**
+             * Update high score if new score is higher
+             * @param {number} score - New score to check
+             */
+            updateHighScore(score) {
+                const progress = this.getProgress();
+                if (score > progress.highScore) {
+                    progress.highScore = score;
+                    this.saveProgress(progress);
+                }
+            },
+
+            /**
+             * Update max streak if new streak is higher
+             * @param {number} streak - New streak to check
+             */
+            updateMaxStreak(streak) {
+                const progress = this.getProgress();
+                if (streak > progress.maxStreak) {
+                    progress.maxStreak = streak;
+                    this.saveProgress(progress);
+                }
+            },
+
+            /**
+             * Update level progress if new level is higher
+             * @param {number} level - New level to check
+             */
+            updateLevelProgress(level) {
+                const progress = this.getProgress();
+                if (level > progress.levelProgress) {
+                    progress.levelProgress = level;
+                    this.saveProgress(progress);
+                }
+            },
+
+            /**
+             * Increment total games count
+             */
+            incrementGames() {
+                const progress = this.getProgress();
+                progress.totalGames++;
+                this.saveProgress(progress);
+            },
+
+            /**
+             * Get list of wrong words with full details
+             * @returns {Array} Array of wrong word objects with details
+             */
+            getWrongWords() {
+                const progress = this.getProgress();
+                const customWords = this.getCustomWords();
+                const allWords = [...ALL_WORDS, ...customWords];
+
+                return progress.wrongWords.map(wrongItem => {
+                    const wordData = allWords.find(w => w.id === wrongItem.id);
+                    return {
+                        ...wordData,
+                        wrongCount: wrongItem.count
+                    };
+                }).filter(w => w.id); // Filter out any undefined words
+            },
+
+            /**
+             * Clear all user data from localStorage
+             */
+            clearAll() {
+                try {
+                    localStorage.removeItem(this.KEYS.PROGRESS);
+                    localStorage.removeItem(this.KEYS.CUSTOM_WORDS);
+                } catch (e) {
+                    console.error('Error clearing data:', e);
+                }
+            },
+
+            /**
+             * Get statistics summary
+             * @returns {Object} Statistics object
+             */
+            getStats() {
+                const progress = this.getProgress();
+                const customWords = this.getCustomWords();
+                const wrongWords = this.getWrongWords();
+
+                return {
+                    totalWords: ALL_WORDS.length + customWords.length,
+                    learnedWords: progress.learnedWords.length,
+                    wrongWordsCount: wrongWords.length,
+                    highScore: progress.highScore,
+                    maxStreak: progress.maxStreak,
+                    levelProgress: progress.levelProgress,
+                    totalGames: progress.totalGames,
+                    correctCount: progress.correctCount,
+                    wrongCount: progress.wrongCount,
+                    accuracy: progress.correctCount + progress.wrongCount > 0
+                        ? Math.round((progress.correctCount / (progress.correctCount + progress.wrongCount)) * 100)
+                        : 0
+                };
+            }
+        };
+
+        // Initialize UserData on load
+        console.log('UserData initialized:', UserData.getStats());
     </script>
 </body>
 </html>
