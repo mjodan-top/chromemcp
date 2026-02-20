@@ -347,7 +347,123 @@
     </style>
 </head>
 <body>
-    <!-- Content will be added in Task 3 -->
+    <div class="game-container">
+        <!-- Header -->
+        <header class="header">
+            <h1>⚽ Football Vocab</h1>
+            <div class="subtitle">足球单词 - 通过游戏学习英语</div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="nav-tabs">
+            <button class="nav-tab active" data-mode="practice" onclick="switchMode('practice')">训练</button>
+            <button class="nav-tab" data-mode="shooting" onclick="switchMode('shooting')">射门</button>
+            <button class="nav-tab" data-mode="levels" onclick="switchMode('levels')">闯关</button>
+            <button class="nav-tab" data-mode="vocabulary" onclick="switchMode('vocabulary')">词库</button>
+        </nav>
+
+        <!-- Game Area -->
+        <main class="game-area" id="gameArea">
+            <!-- Practice Mode -->
+            <div id="practiceTab" class="tab-content active">
+                <canvas id="gameCanvas" width="800" height="300"></canvas>
+
+                <div class="word-card">
+                    <div class="word" id="wordDisplay">Welcome</div>
+                    <div class="phonetic" id="phonetic">/ˈwelkəm/</div>
+                    <button class="speak-btn" onclick="speakWord()" title="播放发音">🔊</button>
+                    <div class="hint" id="example" style="margin-top: 10px;">Welcome to Football Vocab!</div>
+                </div>
+
+                <div class="options-container" id="optionsContainer">
+                    <button class="option-btn" onclick="selectOption(0)">欢迎</button>
+                    <button class="option-btn" onclick="selectOption(1)">再见</button>
+                    <button class="option-btn" onclick="selectOption(2)">谢谢</button>
+                    <button class="option-btn" onclick="selectOption(3)">对不起</button>
+                </div>
+            </div>
+
+            <!-- Shooting Mode -->
+            <div id="shootingTab" class="tab-content">
+                <div class="timer-container">
+                    <div class="timer-bar">
+                        <div class="timer-progress" id="timerProgress" style="width: 100%;"></div>
+                    </div>
+                    <div class="timer-text">剩余时间: <span id="timeLeft">90</span> 秒</div>
+                </div>
+
+                <canvas id="shootingCanvas" width="800" height="300"></canvas>
+
+                <div class="word-card">
+                    <div class="word" id="shootingWordDisplay">Ready?</div>
+                    <div class="phonetic" id="shootingPhonetic"></div>
+                    <button class="speak-btn" onclick="speakWord()" title="播放发音">🔊</button>
+                </div>
+
+                <div class="options-container" id="shootingOptionsContainer">
+                    <button class="option-btn" onclick="selectOption(0)">准备</button>
+                    <button class="option-btn" onclick="selectOption(1)">开始</button>
+                    <button class="option-btn" onclick="selectOption(2)">结束</button>
+                    <button class="option-btn" onclick="selectOption(3)">暂停</button>
+                </div>
+            </div>
+
+            <!-- Levels Mode -->
+            <div id="levelsTab" class="tab-content">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 1.2rem; color: var(--primary-green); font-weight: bold;">
+                        关卡 <span id="levelDisplay">1</span> / 10
+                    </div>
+                    <div style="font-size: 0.9rem; color: #666; margin-top: 5px;">
+                        连续答对 <span id="levelProgress">0</span> / <span id="levelRequired">3</span> 题
+                    </div>
+                </div>
+
+                <canvas id="levelsCanvas" width="800" height="300"></canvas>
+
+                <div class="word-card">
+                    <div class="word" id="levelsWordDisplay">Level 1</div>
+                    <div class="phonetic" id="levelsPhonetic"></div>
+                    <button class="speak-btn" onclick="speakWord()" title="播放发音">🔊</button>
+                </div>
+
+                <div class="options-container" id="levelsOptionsContainer">
+                    <button class="option-btn" onclick="selectOption(0)">选项A</button>
+                    <button class="option-btn" onclick="selectOption(1)">选项B</button>
+                    <button class="option-btn" onclick="selectOption(2)">选项C</button>
+                    <button class="option-btn" onclick="selectOption(3)">选项D</button>
+                </div>
+            </div>
+
+            <!-- Vocabulary Mode -->
+            <div id="vocabularyTab" class="tab-content">
+                <div style="text-align: center; padding: 40px;">
+                    <h3 style="color: var(--primary-green); margin-bottom: 20px;">📚 词库管理</h3>
+                    <p style="color: #666;">管理您的单词和查看错题本</p>
+                    <div id="vocabularyContent" style="margin-top: 30px;">
+                        <!-- Content will be loaded by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-item">
+                <span class="label">⭐ 得分:</span>
+                <span class="value" id="score">0</span>
+            </div>
+            <div class="status-item" id="streakItem">
+                <span class="label">🔥 连胜:</span>
+                <span class="value" id="streak">0</span>
+            </div>
+            <div class="status-item">
+                <span class="label">📊</span>
+                <button onclick="showStats()" style="background: none; border: none; color: var(--primary-green); cursor: pointer; font-weight: bold;">查看统计</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // JavaScript will be added in Task 4+
     </script>
