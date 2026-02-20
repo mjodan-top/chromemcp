@@ -1051,6 +1051,778 @@
 
         // Initialize UserData on load
         console.log('UserData initialized:', UserData.getStats());
+
+        // ============================================
+        // TASK 6: GAME STATE MANAGEMENT
+        // ============================================
+
+        const GameState = {
+            mode: 'practice',
+            score: 0,
+            streak: 0,
+            timeLeft: 90,
+            timerInterval: null,
+            currentWord: null,
+            options: [],
+            level: 1,
+            levelProgress: 0,
+            levelRequired: 3,
+            isAnswering: false,
+            practiceIndex: 0,
+
+            /**
+             * Reset game state to initial values
+             */
+            reset() {
+                this.score = 0;
+                this.streak = 0;
+                this.timeLeft = 90;
+                this.currentWord = null;
+                this.options = [];
+                this.levelProgress = 0;
+                this.isAnswering = false;
+                this.stopTimer();
+                this.updateDisplay();
+            },
+
+            /**
+             * Start the game timer
+             */
+            startTimer() {
+                this.stopTimer();
+                this.timerInterval = setInterval(() => {
+                    this.timeLeft--;
+                    updateTimerDisplay();
+                    if (this.timeLeft <= 0) {
+                        this.stopTimer();
+                        endShootingGame();
+                    }
+                }, 1000);
+            },
+
+            /**
+             * Stop the game timer
+             */
+            stopTimer() {
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
+                }
+            },
+
+            /**
+             * Update score display
+             * @param {number} points - Points to add
+             */
+            addScore(points) {
+                this.score += points;
+                updateStatusDisplay();
+            },
+
+            /**
+             * Increment streak counter
+             */
+            incrementStreak() {
+                this.streak++;
+                UserData.updateMaxStreak(this.streak);
+                updateStatusDisplay();
+            },
+
+            /**
+             * Reset streak counter
+             */
+            resetStreak() {
+                this.streak = 0;
+                updateStatusDisplay();
+            },
+
+            /**
+             * Update all display elements
+             */
+            updateDisplay() {
+                updateStatusDisplay();
+                updateTimerDisplay();
+            }
+        };
+
+        const WordManager = {
+            /**
+             * Get all available words (built-in + custom)
+             * @returns {Array} All words
+             */
+            getAllWords() {
+                const customWords = UserData.getCustomWords();
+                return [...ALL_WORDS, ...customWords];
+            },
+
+            /**
+             * Get words filtered by difficulty
+             * @param {string} difficulty - 'easy', 'medium', or 'hard'
+             * @returns {Array} Filtered words
+             */
+            getWordsByDifficulty(difficulty) {
+                return this.getAllWords().filter(w => w.difficulty === difficulty);
+            },
+
+            /**
+             * Get a random word from specified difficulty
+             * @param {string} difficulty - 'easy', 'medium', or 'hard'
+             * @returns {Object} Random word object
+             */
+            getRandomWord(difficulty) {
+                const words = this.getWordsByDifficulty(difficulty);
+                if (words.length === 0) return null;
+                return words[Math.floor(Math.random() * words.length)];
+            },
+
+            /**
+             * Generate 4 options including the correct answer
+             * @param {Object} correctWord - The correct word object
+             * @returns {Array} Array of 4 word objects
+             */
+            generateOptions(correctWord) {
+                const allWords = this.getAllWords();
+                const options = [correctWord];
+                const difficulty = correctWord.difficulty;
+
+                // Get words of same difficulty for wrong answers
+                const sameDifficultyWords = allWords.filter(
+                    w => w.difficulty === difficulty && w.id !== correctWord.id
+                );
+
+                // Shuffle and pick 3 wrong answers
+                const shuffled = [...sameDifficultyWords].sort(() => Math.random() - 0.5);
+                for (let i = 0; i < 3 && i < shuffled.length; i++) {
+                    options.push(shuffled[i]);
+                }
+
+                // If not enough same-difficulty words, add from all words
+                while (options.length < 4) {
+                    const randomWord = allWords[Math.floor(Math.random() * allWords.length)];
+                    if (!options.find(o => o.id === randomWord.id)) {
+                        options.push(randomWord);
+                    }
+                }
+
+                // Shuffle options
+                return options.sort(() => Math.random() - 0.5);
+            },
+
+            /**
+             * Get appropriate word for current level
+             * @param {number} level - Current level (1-10)
+             * @returns {Object} Word object appropriate for level
+             */
+            getWordForLevel(level) {
+                let difficulty;
+                if (level <= 3) {
+                    difficulty = 'easy';
+                } else if (level <= 7) {
+                    difficulty = 'medium';
+                } else {
+                    difficulty = 'hard';
+                }
+                return this.getRandomWord(difficulty);
+            },
+
+            /**
+             * Get word by ID
+             * @param {string} wordId - Word ID
+             * @returns {Object} Word object or null
+             */
+            getWordById(wordId) {
+                return this.getAllWords().find(w => w.id === wordId) || null;
+            }
+        };
+
+        // ============================================
+        // TASK 7: MODE SWITCHING FUNCTIONS
+        // ============================================
+
+        /**
+         * Switch between game modes
+         * @param {string} mode - 'practice', 'shooting', 'levels', or 'vocabulary'
+         */
+        function switchMode(mode) {
+            // Update GameState
+            GameState.mode = mode;
+
+            // Update navigation tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.mode === mode) {
+                    tab.classList.add('active');
+                }
+            });
+
+            // Update tab content visibility
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Stop any running timer
+            GameState.stopTimer();
+
+            // Initialize the selected mode
+            switch (mode) {
+                case 'practice':
+                    document.getElementById('practiceTab').classList.add('active');
+                    initPracticeMode();
+                    break;
+                case 'shooting':
+                    document.getElementById('shootingTab').classList.add('active');
+                    initShootingMode();
+                    break;
+                case 'levels':
+                    document.getElementById('levelsTab').classList.add('active');
+                    initLevelsMode();
+                    break;
+                case 'vocabulary':
+                    document.getElementById('vocabularyTab').classList.add('active');
+                    initVocabularyMode();
+                    break;
+            }
+
+            // Update status display
+            updateStatusDisplay();
+        }
+
+        /**
+         * Initialize Practice Mode
+         */
+        function initPracticeMode() {
+            GameState.reset();
+            GameState.practiceIndex = 0;
+            displayWord();
+        }
+
+        /**
+         * Initialize Shooting Mode (timed challenge)
+         */
+        function initShootingMode() {
+            GameState.reset();
+            GameState.timeLeft = 90;
+            UserData.incrementGames();
+            GameState.startTimer();
+            nextShootingQuestion();
+        }
+
+        /**
+         * Initialize Levels Mode
+         */
+        function initLevelsMode() {
+            GameState.reset();
+            const savedProgress = UserData.getProgress();
+            GameState.level = savedProgress.levelProgress;
+            GameState.levelProgress = 0;
+            GameState.levelRequired = 3;
+            updateLevelDisplay();
+            nextLevelQuestion();
+        }
+
+        /**
+         * Initialize Vocabulary Mode
+         */
+        function initVocabularyMode() {
+            renderVocabularyContent();
+        }
+
+        /**
+         * Update timer display in shooting mode
+         */
+        function updateTimerDisplay() {
+            const timerProgress = document.getElementById('timerProgress');
+            const timeLeftDisplay = document.getElementById('timeLeft');
+
+            if (timerProgress && timeLeftDisplay) {
+                const percentage = (GameState.timeLeft / 90) * 100;
+                timerProgress.style.width = percentage + '%';
+                timeLeftDisplay.textContent = GameState.timeLeft;
+
+                // Update color based on time remaining
+                timerProgress.classList.remove('warning', 'danger');
+                if (GameState.timeLeft <= 15) {
+                    timerProgress.classList.add('danger');
+                } else if (GameState.timeLeft <= 30) {
+                    timerProgress.classList.add('warning');
+                }
+            }
+        }
+
+        /**
+         * Update status display (score and streak)
+         */
+        function updateStatusDisplay() {
+            const scoreElement = document.getElementById('score');
+            const streakElement = document.getElementById('streak');
+
+            if (scoreElement) {
+                scoreElement.textContent = GameState.score;
+            }
+            if (streakElement) {
+                streakElement.textContent = GameState.streak;
+            }
+        }
+
+        /**
+         * Update level display
+         */
+        function updateLevelDisplay() {
+            const levelDisplay = document.getElementById('levelDisplay');
+            const levelProgress = document.getElementById('levelProgress');
+            const levelRequired = document.getElementById('levelRequired');
+
+            if (levelDisplay) levelDisplay.textContent = GameState.level;
+            if (levelProgress) levelProgress.textContent = GameState.levelProgress;
+            if (levelRequired) levelRequired.textContent = GameState.levelRequired;
+        }
+
+        // ============================================
+        // TASK 8: WORD DISPLAY AND SELECTION
+        // ============================================
+
+        /**
+         * Display current word and options based on mode
+         */
+        function displayWord() {
+            switch (GameState.mode) {
+                case 'practice':
+                    displayPracticeWord();
+                    break;
+                case 'shooting':
+                    displayShootingWord();
+                    break;
+                case 'levels':
+                    displayLevelsWord();
+                    break;
+            }
+        }
+
+        /**
+         * Display word in practice mode
+         */
+        function displayPracticeWord() {
+            const words = WordManager.getAllWords();
+            if (GameState.practiceIndex >= words.length) {
+                GameState.practiceIndex = 0;
+            }
+
+            const word = words[GameState.practiceIndex];
+            GameState.currentWord = word;
+            GameState.options = WordManager.generateOptions(word);
+
+            // Update display
+            document.getElementById('wordDisplay').textContent = word.word;
+            document.getElementById('phonetic').textContent = word.phonetic;
+            document.getElementById('example').textContent = `${word.example} (${word.exampleTranslation})`;
+
+            // Update option buttons
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+            GameState.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = option.meaning;
+                btn.onclick = () => selectOption(index);
+                container.appendChild(btn);
+            });
+
+            // Auto-speak the word
+            speakWord();
+        }
+
+        /**
+         * Display word in shooting mode
+         */
+        function displayShootingWord() {
+            const word = GameState.currentWord;
+            if (!word) return;
+
+            document.getElementById('shootingWordDisplay').textContent = word.word;
+            document.getElementById('shootingPhonetic').textContent = word.phonetic;
+
+            // Update option buttons
+            const container = document.getElementById('shootingOptionsContainer');
+            container.innerHTML = '';
+            GameState.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = option.meaning;
+                btn.onclick = () => selectOption(index);
+                container.appendChild(btn);
+            });
+
+            speakWord();
+        }
+
+        /**
+         * Display word in levels mode
+         */
+        function displayLevelsWord() {
+            const word = GameState.currentWord;
+            if (!word) return;
+
+            document.getElementById('levelsWordDisplay').textContent = word.word;
+            document.getElementById('levelsPhonetic').textContent = word.phonetic;
+
+            // Update option buttons
+            const container = document.getElementById('levelsOptionsContainer');
+            container.innerHTML = '';
+            GameState.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = option.meaning;
+                btn.onclick = () => selectOption(index);
+                container.appendChild(btn);
+            });
+
+            speakWord();
+        }
+
+        /**
+         * Handle option selection
+         * @param {number} index - Index of selected option
+         */
+        function selectOption(index) {
+            if (GameState.isAnswering) return;
+            GameState.isAnswering = true;
+
+            const selectedOption = GameState.options[index];
+            const isCorrect = selectedOption.id === GameState.currentWord.id;
+
+            // Visual feedback
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach((btn, i) => {
+                btn.disabled = true;
+                if (i === index) {
+                    btn.classList.add(isCorrect ? 'correct' : 'wrong');
+                }
+                if (GameState.options[i].id === GameState.currentWord.id) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            // Handle answer
+            if (isCorrect) {
+                handleCorrectAnswer();
+            } else {
+                handleWrongAnswer();
+            }
+
+            // Move to next question after delay
+            setTimeout(() => {
+                nextQuestion();
+                GameState.isAnswering = false;
+            }, 1500);
+        }
+
+        /**
+         * Handle correct answer
+         */
+        function handleCorrectAnswer() {
+            const word = GameState.currentWord;
+
+            // Update score based on mode
+            let points = 10;
+            if (GameState.mode === 'shooting') {
+                // Bonus points for streak in shooting mode
+                points = 10 + Math.min(GameState.streak * 2, 20);
+            }
+            GameState.addScore(points);
+            GameState.incrementStreak();
+
+            // Mark as correct in user data
+            UserData.markCorrect(word.id);
+            UserData.markLearned(word.id);
+
+            // Show fire effect for streaks
+            if (GameState.streak >= 3) {
+                showFireEffect();
+            }
+
+            // Update level progress if in levels mode
+            if (GameState.mode === 'levels') {
+                GameState.levelProgress++;
+                updateLevelDisplay();
+
+                if (GameState.levelProgress >= GameState.levelRequired) {
+                    setTimeout(() => levelComplete(), 500);
+                }
+            }
+        }
+
+        /**
+         * Handle wrong answer
+         */
+        function handleWrongAnswer() {
+            const word = GameState.currentWord;
+
+            // Reset streak
+            GameState.resetStreak();
+
+            // Mark as wrong in user data
+            UserData.markWrong(word.id);
+
+            // Reset level progress if in levels mode
+            if (GameState.mode === 'levels') {
+                GameState.levelProgress = 0;
+                updateLevelDisplay();
+            }
+        }
+
+        /**
+         * Show fire effect for streaks
+         */
+        function showFireEffect() {
+            // Create fire emoji animation
+            const fire = document.createElement('div');
+            fire.textContent = '🔥';
+            fire.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 5rem;
+                z-index: 1000;
+                animation: firePulse 1s ease-out;
+                pointer-events: none;
+            `;
+
+            // Add animation style if not exists
+            if (!document.getElementById('fireAnimation')) {
+                const style = document.createElement('style');
+                style.id = 'fireAnimation';
+                style.textContent = `
+                    @keyframes firePulse {
+                        0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+                        50% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
+                        100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            document.body.appendChild(fire);
+            setTimeout(() => fire.remove(), 1000);
+        }
+
+        /**
+         * Move to next question based on mode
+         */
+        function nextQuestion() {
+            switch (GameState.mode) {
+                case 'practice':
+                    nextPracticeWord();
+                    break;
+                case 'shooting':
+                    nextShootingQuestion();
+                    break;
+                case 'levels':
+                    nextLevelQuestion();
+                    break;
+            }
+        }
+
+        /**
+         * Go to next word in practice mode
+         */
+        function nextPracticeWord() {
+            GameState.practiceIndex++;
+            displayPracticeWord();
+        }
+
+        /**
+         * Go to previous word in practice mode
+         */
+        function prevPracticeWord() {
+            if (GameState.practiceIndex > 0) {
+                GameState.practiceIndex--;
+                displayPracticeWord();
+            }
+        }
+
+        /**
+         * Get next question for shooting mode
+         */
+        function nextShootingQuestion() {
+            // Mix difficulties for shooting mode, more weight to easier words
+            const rand = Math.random();
+            let difficulty;
+            if (rand < 0.5) {
+                difficulty = 'easy';
+            } else if (rand < 0.8) {
+                difficulty = 'medium';
+            } else {
+                difficulty = 'hard';
+            }
+
+            const word = WordManager.getRandomWord(difficulty);
+            if (word) {
+                GameState.currentWord = word;
+                GameState.options = WordManager.generateOptions(word);
+                displayShootingWord();
+            }
+        }
+
+        /**
+         * Get next question for levels mode
+         */
+        function nextLevelQuestion() {
+            const word = WordManager.getWordForLevel(GameState.level);
+            if (word) {
+                GameState.currentWord = word;
+                GameState.options = WordManager.generateOptions(word);
+                displayLevelsWord();
+            }
+        }
+
+        // ============================================
+        // TASK 9: GAME END AND LEVEL COMPLETION
+        // ============================================
+
+        /**
+         * End shooting game and show results
+         */
+        function endShootingGame() {
+            GameState.stopTimer();
+            UserData.updateHighScore(GameState.score);
+
+            // Calculate rating
+            let rating;
+            if (GameState.score >= 500) {
+                rating = '⭐⭐⭐ 神射手!';
+            } else if (GameState.score >= 300) {
+                rating = '⭐⭐ 射手!';
+            } else if (GameState.score >= 150) {
+                rating = '⭐ 新秀!';
+            } else {
+                rating = '继续练习!';
+            }
+
+            // Show result modal or alert
+            const message = `游戏结束!\n\n得分: ${GameState.score}\n最高连胜: ${GameState.streak}\n\n评级: ${rating}`;
+            alert(message);
+
+            // Reset and go back to practice mode
+            switchMode('practice');
+        }
+
+        /**
+         * Handle level completion
+         */
+        function levelComplete() {
+            // Save progress
+            UserData.updateLevelProgress(GameState.level + 1);
+
+            // Check if all levels completed
+            if (GameState.level >= 10) {
+                alert('🎉 恭喜! 你已完成所有关卡!\n你是真正的词汇大师!');
+                switchMode('practice');
+                return;
+            }
+
+            // Show level complete message
+            const message = `🎉 关卡 ${GameState.level} 完成!\n\n准备进入关卡 ${GameState.level + 1}...`;
+            alert(message);
+
+            // Advance to next level
+            GameState.level++;
+            GameState.levelProgress = 0;
+            GameState.levelRequired = Math.min(3 + Math.floor(GameState.level / 3), 5);
+            updateLevelDisplay();
+            nextLevelQuestion();
+        }
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+
+        /**
+         * Speak the current word using Web Speech API
+         */
+        function speakWord() {
+            if (!GameState.currentWord) return;
+
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(GameState.currentWord.word);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.8;
+                speechSynthesis.speak(utterance);
+            }
+        }
+
+        /**
+         * Show statistics modal
+         */
+        function showStats() {
+            const stats = UserData.getStats();
+            const message = `
+📊 学习统计
+
+总单词数: ${stats.totalWords}
+已学习: ${stats.learnedWords}
+错题数: ${stats.wrongWordsCount}
+
+🎮 游戏记录
+最高分: ${stats.highScore}
+最高连胜: ${stats.maxStreak}
+总游戏数: ${stats.totalGames}
+
+✅ 答题情况
+正确: ${stats.correctCount}
+错误: ${stats.wrongCount}
+正确率: ${stats.accuracy}%
+            `;
+            alert(message);
+        }
+
+        /**
+         * Render vocabulary management content
+         */
+        function renderVocabularyContent() {
+            const container = document.getElementById('vocabularyContent');
+            const wrongWords = UserData.getWrongWords();
+
+            let html = '<div style="text-align: left;">';
+
+            // Wrong words section
+            html += '<h4 style="color: var(--primary-green); margin: 20px 0 10px;">📝 错题本</h4>';
+            if (wrongWords.length === 0) {
+                html += '<p style="color: #666;">太棒了! 你没有错题。</p>';
+            } else {
+                html += '<div style="max-height: 300px; overflow-y: auto;">';
+                wrongWords.forEach(w => {
+                    html += `
+                        <div style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <strong>${w.word}</strong> ${w.phonetic} - ${w.meaning}
+                            <span style="color: var(--red); float: right;">错误 ${w.wrongCount} 次</span>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+
+            // Stats summary
+            const stats = UserData.getStats();
+            html += `
+                <h4 style="color: var(--primary-green); margin: 20px 0 10px;">📈 进度概览</h4>
+                <p>当前关卡: ${stats.levelProgress}</p>
+                <p>已学单词: ${stats.learnedWords} / ${stats.totalWords}</p>
+            `;
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+
+        // Initialize game on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Football Vocab initialized');
+            initPracticeMode();
+        });
     </script>
 </body>
 </html>
