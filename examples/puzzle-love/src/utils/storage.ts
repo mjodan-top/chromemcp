@@ -1,6 +1,8 @@
 import { PlayerData } from '../types';
 
 const STORAGE_KEY = 'puzzle_love_v1';
+export const MAX_ACTION_POINTS = 5;
+export const ACTION_POINT_RECOVERY_MS = 30 * 60 * 1000; // 30 minutes
 const SECRET_KEY = 'puzzle_xor_2024';
 
 // 简单 XOR 加密
