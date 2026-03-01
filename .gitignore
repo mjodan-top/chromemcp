@@ -8,3 +8,9 @@ screenshots/
 baselines/
 .vscode/
 .idea/
+
+# Test/automation output directories
+chromemcp-output/
+tests/output/
+tests/e2e/output/
+tests/demo-project/
