@@ -43,6 +43,9 @@
             border-radius: 20px;
             box-shadow: 0 10px 40px var(--shadow);
             overflow: hidden;
+            transform: scale(0.8);
+            transform-origin: center top;
+            margin-top: -5vh;
         }
 
         /* Header */
@@ -1490,14 +1493,16 @@
             const selectedOption = GameState.options[index];
             const isCorrect = selectedOption.id === GameState.currentWord.id;
 
-            // Visual feedback
-            const buttons = document.querySelectorAll('.option-btn');
+            // Visual feedback - only select buttons in the active tab
+            const activeTab = document.querySelector('.tab-content.active');
+            const buttons = activeTab ? activeTab.querySelectorAll('.option-btn') : document.querySelectorAll('.option-btn');
             buttons.forEach((btn, i) => {
                 btn.disabled = true;
                 if (i === index) {
                     btn.classList.add(isCorrect ? 'correct' : 'wrong');
                 }
-                if (GameState.options[i].id === GameState.currentWord.id) {
+                // Check if options[i] exists before accessing id
+                if (GameState.options[i] && GameState.options[i].id === GameState.currentWord.id) {
                     btn.classList.add('correct');
                 }
             });
