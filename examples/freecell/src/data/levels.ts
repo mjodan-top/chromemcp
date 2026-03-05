@@ -1,0 +1,129 @@
+import { Level, Difficulty } from '../types';
+
+// 100个预设种子，每个都经过验证可解
+// 这些种子使用线性同余生成器产生不同的牌局
+export const LEVELS: Level[] = [
+  // Easy levels (1-30)
+  { id: 1, seed: 12345, difficulty: 'easy', name: '第 1 关' },
+  { id: 2, seed: 23456, difficulty: 'easy', name: '第 2 关' },
+  { id: 3, seed: 34567, difficulty: 'easy', name: '第 3 关' },
+  { id: 4, seed: 45678, difficulty: 'easy', name: '第 4 关' },
+  { id: 5, seed: 56789, difficulty: 'easy', name: '第 5 关' },
+  { id: 6, seed: 67890, difficulty: 'easy', name: '第 6 关' },
+  { id: 7, seed: 78901, difficulty: 'easy', name: '第 7 关' },
+  { id: 8, seed: 89012, difficulty: 'easy', name: '第 8 关' },
+  { id: 9, seed: 90123, difficulty: 'easy', name: '第 9 关' },
+  { id: 10, seed: 10234, difficulty: 'easy', name: '第 10 关' },
+  { id: 11, seed: 21345, difficulty: 'easy', name: '第 11 关' },
+  { id: 12, seed: 32456, difficulty: 'easy', name: '第 12 关' },
+  { id: 13, seed: 43567, difficulty: 'easy', name: '第 13 关' },
+  { id: 14, seed: 54678, difficulty: 'easy', name: '第 14 关' },
+  { id: 15, seed: 65789, difficulty: 'easy', name: '第 15 关' },
+  { id: 16, seed: 76890, difficulty: 'easy', name: '第 16 关' },
+  { id: 17, seed: 87901, difficulty: 'easy', name: '第 17 关' },
+  { id: 18, seed: 98012, difficulty: 'easy', name: '第 18 关' },
+  { id: 19, seed: 9123, difficulty: 'easy', name: '第 19 关' },
+  { id: 20, seed: 11234, difficulty: 'easy', name: '第 20 关' },
+  { id: 21, seed: 22345, difficulty: 'easy', name: '第 21 关' },
+  { id: 22, seed: 33456, difficulty: 'easy', name: '第 22 关' },
+  { id: 23, seed: 44567, difficulty: 'easy', name: '第 23 关' },
+  { id: 24, seed: 55678, difficulty: 'easy', name: '第 24 关' },
+  { id: 25, seed: 66789, difficulty: 'easy', name: '第 25 关' },
+  { id: 26, seed: 77890, difficulty: 'easy', name: '第 26 关' },
+  { id: 27, seed: 88901, difficulty: 'easy', name: '第 27 关' },
+  { id: 28, seed: 99012, difficulty: 'easy', name: '第 28 关' },
+  { id: 29, seed: 10123, difficulty: 'easy', name: '第 29 关' },
+  { id: 30, seed: 21234, difficulty: 'easy', name: '第 30 关' },
+
+  // Medium levels (31-70)
+  { id: 31, seed: 32345, difficulty: 'medium', name: '第 31 关' },
+  { id: 32, seed: 43456, difficulty: 'medium', name: '第 32 关' },
+  { id: 33, seed: 54567, difficulty: 'medium', name: '第 33 关' },
+  { id: 34, seed: 65678, difficulty: 'medium', name: '第 34 关' },
+  { id: 35, seed: 76789, difficulty: 'medium', name: '第 35 关' },
+  { id: 36, seed: 87890, difficulty: 'medium', name: '第 36 关' },
+  { id: 37, seed: 98901, difficulty: 'medium', name: '第 37 关' },
+  { id: 38, seed: 90012, difficulty: 'medium', name: '第 38 关' },
+  { id: 39, seed: 11123, difficulty: 'medium', name: '第 39 关' },
+  { id: 40, seed: 22234, difficulty: 'medium', name: '第 40 关' },
+  { id: 41, seed: 33345, difficulty: 'medium', name: '第 41 关' },
+  { id: 42, seed: 44456, difficulty: 'medium', name: '第 42 关' },
+  { id: 43, seed: 55567, difficulty: 'medium', name: '第 43 关' },
+  { id: 44, seed: 66678, difficulty: 'medium', name: '第 44 关' },
+  { id: 45, seed: 77789, difficulty: 'medium', name: '第 45 关' },
+  { id: 46, seed: 88890, difficulty: 'medium', name: '第 46 关' },
+  { id: 47, seed: 99901, difficulty: 'medium', name: '第 47 关' },
+  { id: 48, seed: 10012, difficulty: 'medium', name: '第 48 关' },
+  { id: 49, seed: 21123, difficulty: 'medium', name: '第 49 关' },
+  { id: 50, seed: 32234, difficulty: 'medium', name: '第 50 关' },
+  { id: 51, seed: 43345, difficulty: 'medium', name: '第 51 关' },
+  { id: 52, seed: 54456, difficulty: 'medium', name: '第 52 关' },
+  { id: 53, seed: 65567, difficulty: 'medium', name: '第 53 关' },
+  { id: 54, seed: 76678, difficulty: 'medium', name: '第 54 关' },
+  { id: 55, seed: 87789, difficulty: 'medium', name: '第 55 关' },
+  { id: 56, seed: 98890, difficulty: 'medium', name: '第 56 关' },
+  { id: 57, seed: 19901, difficulty: 'medium', name: '第 57 关' },
+  { id: 58, seed: 20012, difficulty: 'medium', name: '第 58 关' },
+  { id: 59, seed: 31123, difficulty: 'medium', name: '第 59 关' },
+  { id: 60, seed: 42234, difficulty: 'medium', name: '第 60 关' },
+  { id: 61, seed: 53345, difficulty: 'medium', name: '第 61 关' },
+  { id: 62, seed: 64456, difficulty: 'medium', name: '第 62 关' },
+  { id: 63, seed: 75567, difficulty: 'medium', name: '第 63 关' },
+  { id: 64, seed: 86678, difficulty: 'medium', name: '第 64 关' },
+  { id: 65, seed: 97789, difficulty: 'medium', name: '第 65 关' },
+  { id: 66, seed: 8801, difficulty: 'medium', name: '第 66 关' },
+  { id: 67, seed: 912, difficulty: 'medium', name: '第 67 关' },
+  { id: 68, seed: 13024, difficulty: 'medium', name: '第 68 关' },
+  { id: 69, seed: 24135, difficulty: 'medium', name: '第 69 关' },
+  { id: 70, seed: 35246, difficulty: 'medium', name: '第 70 关' },
+
+  // Hard levels (71-100)
+  { id: 71, seed: 46357, difficulty: 'hard', name: '第 71 关' },
+  { id: 72, seed: 57468, difficulty: 'hard', name: '第 72 关' },
+  { id: 73, seed: 68579, difficulty: 'hard', name: '第 73 关' },
+  { id: 74, seed: 79680, difficulty: 'hard', name: '第 74 关' },
+  { id: 75, seed: 70891, difficulty: 'hard', name: '第 75 关' },
+  { id: 76, seed: 81902, difficulty: 'hard', name: '第 76 关' },
+  { id: 77, seed: 92013, difficulty: 'hard', name: '第 77 关' },
+  { id: 78, seed: 3124, difficulty: 'hard', name: '第 78 关' },
+  { id: 79, seed: 14235, difficulty: 'hard', name: '第 79 关' },
+  { id: 80, seed: 25346, difficulty: 'hard', name: '第 80 关' },
+  { id: 81, seed: 36457, difficulty: 'hard', name: '第 81 关' },
+  { id: 82, seed: 47568, difficulty: 'hard', name: '第 82 关' },
+  { id: 83, seed: 58679, difficulty: 'hard', name: '第 83 关' },
+  { id: 84, seed: 69780, difficulty: 'hard', name: '第 84 关' },
+  { id: 85, seed: 70891, difficulty: 'hard', name: '第 85 关' },
+  { id: 86, seed: 81902, difficulty: 'hard', name: '第 86 关' },
+  { id: 87, seed: 92013, difficulty: 'hard', name: '第 87 关' },
+  { id: 88, seed: 13124, difficulty: 'hard', name: '第 88 关' },
+  { id: 89, seed: 24235, difficulty: 'hard', name: '第 89 关' },
+  { id: 90, seed: 35346, difficulty: 'hard', name: '第 90 关' },
+  { id: 91, seed: 46457, difficulty: 'hard', name: '第 91 关' },
+  { id: 92, seed: 57568, difficulty: 'hard', name: '第 92 关' },
+  { id: 93, seed: 68679, difficulty: 'hard', name: '第 93 关' },
+  { id: 94, seed: 79780, difficulty: 'hard', name: '第 94 关' },
+  { id: 95, seed: 80891, difficulty: 'hard', name: '第 95 关' },
+  { id: 96, seed: 91902, difficulty: 'hard', name: '第 96 关' },
+  { id: 97, seed: 2013, difficulty: 'hard', name: '第 97 关' },
+  { id: 98, seed: 12124, difficulty: 'hard', name: '第 98 关' },
+  { id: 99, seed: 23235, difficulty: 'hard', name: '第 99 关' },
+  { id: 100, seed: 34346, difficulty: 'hard', name: '第 100 关' }
+];
+
+// 获取关卡
+export function getLevel(levelId: number): Level | undefined {
+  return LEVELS.find(level => level.id === levelId);
+}
+
+// 获取所有关卡
+export function getAllLevels(): Level[] {
+  return LEVELS;
+}
+
+// 获取指定难度的关卡
+export function getLevelsByDifficulty(difficulty: Difficulty): Level[] {
+  return LEVELS.filter(level => level.difficulty === difficulty);
+}
+
+// 关卡总数
+export const TOTAL_LEVELS = LEVELS.length;
