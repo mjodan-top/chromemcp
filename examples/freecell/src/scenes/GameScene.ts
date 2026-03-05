@@ -23,10 +23,21 @@ export class GameScene extends Phaser.Scene {
   private timerEvent!: Phaser.Time.TimerEvent;
   private isPaused: boolean = false;
   private selectedCards: Card[] = [];
+  // Used for tracking move source (useful for undo and move validation)
+  // @ts-ignore - used for tracking
+  private selectedSource: { type: 'tableau' | 'freeCell'; index: number } | null = null;
 
   private cardWidth: number = 70;
   private tableauStartY: number = 260;
   private cardGap: number = 25;
+
+  // 双击检测相关
+  private lastClickTime: number = 0;
+  private lastClickedCard: Card | null = null;
+  private readonly DOUBLE_CLICK_DELAY: number = 350;
+
+  // 拖拽状态跟踪
+  private isDragging: boolean = false;
 
   constructor() {
     super({ key: 'GameScene' });
@@ -62,6 +73,10 @@ export class GameScene extends Phaser.Scene {
     this.foundationCards = [[], [], [], []];
     this.moveHistory = [];
     this.selectedCards = [];
+    this.selectedSource = null;
+    this.lastClickTime = 0;
+    this.lastClickedCard = null;
+    this.isDragging = false;
   }
 
   create(): void {
@@ -141,6 +156,18 @@ export class GameScene extends Phaser.Scene {
     // 目标区 (右侧)
     const foundationX = startX + 4 * (this.cardWidth + 10) + gap;
     this.foundationArea = new FoundationArea(this, foundationX, 150);
+
+    // 设置FreeCell槽位的点击处理
+    const freeCellSlots = this.freeCellArea.getSlotGameObjects();
+    freeCellSlots.forEach((slot, index) => {
+      slot.on('pointerdown', () => this.handleFreeCellSlotClick(index));
+    });
+
+    // 设置Foundation槽位的点击处理
+    const foundationSlots = this.foundationArea.getSlotGameObjects();
+    foundationSlots.forEach((slot, index) => {
+      slot.on('pointerdown', () => this.handleFoundationSlotClick(index));
+    });
   }
 
   private createTableauArea(width: number): void {
@@ -186,19 +213,46 @@ export class GameScene extends Phaser.Scene {
   }
 
   private setupCardInteraction(card: Card, _col: number): void {
-    // 双击检测
-    let lastClickTime = 0;
-    const DOUBLE_CLICK_DELAY = 300;
+    // 单击处理（带双击检测）
+    let clickTimer: NodeJS.Timeout | null = null;
+    let pendingClick = false;
 
     card.on('pointerdown', () => {
-      const now = Date.now();
-      const isDoubleClick = (now - lastClickTime) < DOUBLE_CLICK_DELAY;
-      lastClickTime = now;
+      console.log('[pointerdown] Card clicked:', card.cardData.suit, card.cardData.rank, 'isDragging:', this.isDragging);
 
-      if (isDoubleClick) {
-        // 双击：尝试自动移动到目标区
-        this.tryAutoMoveToFoundation(card);
-        lastClickTime = 0; // 重置，避免三击触发
+      // 如果正在拖拽，不处理点击
+      if (this.isDragging) return;
+
+      const now = Date.now();
+
+      // 检查双击
+      if (this.lastClickedCard === card && (now - this.lastClickTime) < this.DOUBLE_CLICK_DELAY) {
+        console.log('[pointerdown] Double-click detected!');
+        // 双击：取消单击定时器，执行双击操作
+        if (clickTimer) {
+          clearTimeout(clickTimer);
+          clickTimer = null;
+        }
+        pendingClick = false;
+        this.lastClickTime = 0;
+        this.lastClickedCard = null;
+
+        // 执行双击操作
+        this.handleDoubleClick(card);
+      } else {
+        console.log('[pointerdown] Single click, lastClickedCard:', this.lastClickedCard?.cardData?.rank, 'time diff:', now - this.lastClickTime);
+        // 记录点击时间和卡牌
+        this.lastClickTime = now;
+        this.lastClickedCard = card;
+
+        // 延迟执行单击，等待可能的双击
+        pendingClick = true;
+        clickTimer = setTimeout(() => {
+          if (pendingClick) {
+            pendingClick = false;
+            this.handleSingleClick(card);
+          }
+        }, this.DOUBLE_CLICK_DELAY);
       }
     });
 
@@ -206,11 +260,25 @@ export class GameScene extends Phaser.Scene {
     this.input.setDraggable(card);
 
     card.on('dragstart', () => {
+      // 设置拖拽状态
+      this.isDragging = true;
+
+      // 取消待处理的单击
+      if (clickTimer) {
+        clearTimeout(clickTimer);
+        clickTimer = null;
+        pendingClick = false;
+      }
+
+      // 清除之前的选择
+      this.clearCardSelection();
+
       // 检查是否在FreeCell中
       const freeCellIdx = this.freeCellCards.findIndex(c => c && c.id === card.cardData.id);
       if (freeCellIdx >= 0) {
         // FreeCell中的卡牌可以单独移动
         this.selectedCards = [card];
+        this.selectedSource = { type: 'freeCell', index: freeCellIdx };
         card.startDrag();
         return;
       }
@@ -223,6 +291,7 @@ export class GameScene extends Phaser.Scene {
       if (cardsToMove.length === 0) return;
 
       this.selectedCards = cardsToMove;
+      this.selectedSource = { type: 'tableau', index: currentCol };
       cardsToMove.forEach(c => c.startDrag());
     });
 
@@ -238,10 +307,178 @@ export class GameScene extends Phaser.Scene {
     });
 
     card.on('dragend', () => {
+      // 重置拖拽状态
+      this.isDragging = false;
+
       if (this.selectedCards.length > 0) {
         this.handleDrop(this.selectedCards);
       }
     });
+  }
+
+  // 处理单击（选中卡牌）
+  private handleSingleClick(card: Card): void {
+    // 如果已有选中的卡牌，尝试移动到目标位置
+    if (this.selectedCards.length > 0 && this.selectedCards[0] !== card) {
+      // 尝试将选中的卡牌放到点击的卡牌上
+      const targetCol = this.getTableauColumn(card);
+      if (targetCol >= 0) {
+        const targetColumn = this.tableauCards[targetCol];
+        const targetCard = targetColumn.length > 0 ? targetColumn[targetColumn.length - 1] : null;
+
+        // 只有点击最底部的牌才能放置
+        if (targetCard === card && this.selectedCards.length === 1) {
+          if (canStackOnTableau(this.selectedCards[0].cardData, card.cardData)) {
+            // 执行移动
+            const fromCol = this.getTableauColumn(this.selectedCards[0]);
+            if (fromCol >= 0) {
+              this.moveCardsToTableau(this.selectedCards, fromCol, targetCol);
+            } else {
+              // 从freeCell移动
+              const freeCellIdx = this.freeCellCards.findIndex(c => c && c.id === this.selectedCards[0].cardData.id);
+              if (freeCellIdx >= 0) {
+                this.moveCardFromFreeCellToTableau(this.selectedCards[0], freeCellIdx, targetCol);
+              }
+            }
+            this.clearCardSelection();
+            return;
+          }
+        }
+      }
+    }
+
+    // 清除之前的选择
+    this.clearCardSelection();
+
+    // 选中这张牌
+    card.setSelected(true);
+    const currentCol = this.getTableauColumn(card);
+    if (currentCol >= 0) {
+      const cardsToSelect = this.getMovableCardsFromTableau(currentCol, card);
+      this.selectedCards = cardsToSelect;
+      this.selectedSource = { type: 'tableau', index: currentCol };
+      cardsToSelect.forEach(c => c.setSelected(true));
+    } else {
+      // 检查是否在FreeCell中
+      const freeCellIdx = this.freeCellCards.findIndex(c => c && c.id === card.cardData.id);
+      if (freeCellIdx >= 0) {
+        this.selectedCards = [card];
+        this.selectedSource = { type: 'freeCell', index: freeCellIdx };
+        card.setSelected(true);
+      }
+    }
+  }
+
+  // 处理双击（自动移动到Foundation）
+  private handleDoubleClick(card: Card): void {
+    console.log('[handleDoubleClick] Card:', card.cardData.suit, card.cardData.rank, 'Position:', card.x, card.y);
+
+    // 清除选择
+    this.clearCardSelection();
+
+    // 设置标志，防止拖拽事件干扰
+    this.isDragging = true;
+
+    // 尝试自动移动到Foundation
+    this.tryAutoMoveToFoundation(card);
+  }
+
+  // 清除卡牌选择状态
+  private clearCardSelection(): void {
+    this.selectedCards.forEach(c => c.setSelected(false));
+    this.selectedCards = [];
+    this.selectedSource = null;
+  }
+
+  // 处理FreeCell槽位点击
+  private handleFreeCellSlotClick(index: number): void {
+    const currentCard = this.freeCellCards[index];
+
+    // 如果有选中的卡牌，尝试移动到这个空位
+    if (this.selectedCards.length === 1 && currentCard === null) {
+      const card = this.selectedCards[0];
+      const fromCol = this.getTableauColumn(card);
+
+      if (fromCol >= 0) {
+        // 从tableau移动到freeCell
+        this.moveCardToFreeCell(card, fromCol, index);
+      } else {
+        // 检查是否从另一个freeCell移动
+        const fromFreeCellIdx = this.freeCellCards.findIndex(c => c && c.id === card.cardData.id);
+        if (fromFreeCellIdx >= 0 && fromFreeCellIdx !== index) {
+          // 从一个freeCell移动到另一个freeCell
+          this.moveCardBetweenFreeCells(card, fromFreeCellIdx, index);
+        }
+      }
+      this.clearCardSelection();
+      return;
+    }
+
+    // 如果这个槽位有卡牌，选中它
+    if (currentCard !== null) {
+      // 找到对应的Card对象
+      const cardObj = this.cards.find(c => c.cardData.id === currentCard.id);
+      if (cardObj) {
+        this.clearCardSelection();
+        this.selectedCards = [cardObj];
+        this.selectedSource = { type: 'freeCell', index };
+        cardObj.setSelected(true);
+      }
+    }
+  }
+
+  // 处理Foundation槽位点击
+  private handleFoundationSlotClick(index: number): void {
+    // 如果有选中的卡牌（只能移动单张），尝试移动到Foundation
+    if (this.selectedCards.length === 1) {
+      const card = this.selectedCards[0];
+
+      // 检查是否可以移动到这个Foundation
+      if (canMoveToFoundation(card.cardData, this.foundationCards[index])) {
+        const suitIndex = this.foundationArea.getSuitIndex(card.cardData.suit);
+
+        // 确保花色匹配
+        if (suitIndex === index) {
+          const fromCol = this.getTableauColumn(card);
+          if (fromCol >= 0) {
+            this.moveCardToFoundation(card, fromCol, index);
+          } else {
+            // 从freeCell移动
+            const freeCellIdx = this.freeCellCards.findIndex(c => c && c.id === card.cardData.id);
+            if (freeCellIdx >= 0) {
+              this.moveCardFromFreeCellToFoundation(card, freeCellIdx, index);
+            }
+          }
+        }
+      }
+      this.clearCardSelection();
+    }
+  }
+
+  // 在FreeCell之间移动卡牌
+  private moveCardBetweenFreeCells(card: Card, fromIndex: number, toIndex: number): void {
+    // 记录移动
+    this.recordMove(
+      { type: 'freeCell', index: fromIndex },
+      { type: 'freeCell', index: toIndex },
+      [card.cardData]
+    );
+
+    // 从原位置移除
+    this.freeCellCards[fromIndex] = null;
+    this.freeCellArea.setCard(fromIndex, null);
+
+    // 添加到新位置
+    this.freeCellCards[toIndex] = card.cardData;
+    this.freeCellArea.setCard(toIndex, card.cardData);
+
+    // 移动卡牌
+    const pos = this.freeCellArea.getSlotPosition(toIndex);
+    card.animateTo(pos.x, pos.y);
+
+    // 更新计数
+    this.gameState.movesCount++;
+    this.updateMovesDisplay();
   }
 
   private getMovableCardsFromTableau(col: number, card: Card): Card[] {
@@ -277,9 +514,17 @@ export class GameScene extends Phaser.Scene {
   
   private tryAutoMoveToFoundation(card: Card): void {
     const suitIndex = this.foundationArea.getSuitIndex(card.cardData.suit);
-    if (suitIndex === -1) return;
+    console.log('[tryAutoMoveToFoundation] Card:', card.cardData.suit, card.cardData.rank, 'suitIndex:', suitIndex);
 
-    if (canMoveToFoundation(card.cardData, this.foundationCards[suitIndex])) {
+    if (suitIndex === -1) {
+      console.log('[tryAutoMoveToFoundation] Invalid suitIndex, returning');
+      return;
+    }
+
+    const canMove = canMoveToFoundation(card.cardData, this.foundationCards[suitIndex]);
+    console.log('[tryAutoMoveToFoundation] canMoveToFoundation:', canMove, 'foundationCards length:', this.foundationCards[suitIndex].length);
+
+    if (canMove) {
       // 找到卡牌所在列
       let fromCol = -1;
       for (let i = 0; i < 8; i++) {
@@ -289,15 +534,24 @@ export class GameScene extends Phaser.Scene {
         }
       }
 
+      console.log('[tryAutoMoveToFoundation] fromCol:', fromCol);
+
       if (fromCol >= 0) {
+        console.log('[tryAutoMoveToFoundation] Moving from tableau to foundation');
         this.moveCardToFoundation(card, fromCol, suitIndex);
       } else {
         // 检查是否在freeCell中
         const freeCellIdx = this.freeCellCards.findIndex(c => c && c.id === card.cardData.id);
+        console.log('[tryAutoMoveToFoundation] freeCellIdx:', freeCellIdx);
         if (freeCellIdx >= 0) {
+          console.log('[tryAutoMoveToFoundation] Moving from freeCell to foundation');
           this.moveCardFromFreeCellToFoundation(card, freeCellIdx, suitIndex);
+        } else {
+          console.log('[tryAutoMoveToFoundation] Card not found in tableau or freeCell');
         }
       }
+    } else {
+      console.log('[tryAutoMoveToFoundation] Cannot move to foundation - conditions not met');
     }
   }
 
@@ -391,6 +645,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   private moveCardToFoundation(card: Card, fromCol: number, foundationIndex: number): void {
+    console.log('[moveCardToFoundation] Card:', card.cardData.suit, card.cardData.rank, 'fromCol:', fromCol, 'foundationIndex:', foundationIndex);
+
     // 记录移动
     this.recordMove(
       { type: 'tableau', index: fromCol },
@@ -400,15 +656,18 @@ export class GameScene extends Phaser.Scene {
 
     // 从游戏区移除
     const colIndex = this.tableauCards[fromCol].indexOf(card);
+    console.log('[moveCardToFoundation] colIndex in tableau:', colIndex);
     if (colIndex >= 0) {
       this.tableauCards[fromCol].splice(colIndex, 1);
     }
 
     // 添加到目标区
     this.foundationCards[foundationIndex].push(card.cardData);
+    console.log('[moveCardToFoundation] Foundation now has', this.foundationCards[foundationIndex].length, 'cards');
 
     // 移动卡牌
     const pos = this.foundationArea.getSlotPosition(foundationIndex);
+    console.log('[moveCardToFoundation] Target position:', pos.x, pos.y, 'Card current position:', card.x, card.y);
     card.animateTo(pos.x, pos.y);
 
     // 更新计数

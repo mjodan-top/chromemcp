@@ -118,13 +118,17 @@ export class Card extends Phaser.GameObjects.Container {
 
   // 移动到新位置 (动画)
   animateTo(x: number, y: number, duration: number = 150): void {
+    console.log('[Card.animateTo] Moving to:', x, y, 'from:', this.x, this.y);
     this.endDrag();
     this.scene.tweens.add({
       targets: this,
       x,
       y,
       duration,
-      ease: 'Power2'
+      ease: 'Power2',
+      onComplete: () => {
+        console.log('[Card.animateTo] Animation complete, final position:', this.x, this.y);
+      }
     });
   }
 

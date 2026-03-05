@@ -40,8 +40,16 @@ export class FreeCellArea {
         color: '#4ecdc4'
       }).setOrigin(0.5).setAlpha(0.5);
 
+      // 设置为可交互（用于点击放置卡牌）
+      slot.setInteractive({ useHandCursor: true });
+
       this.slots.push(slot);
     }
+  }
+
+  // 获取所有槽位的交互对象
+  getSlotGameObjects(): Phaser.GameObjects.Rectangle[] {
+    return this.slots;
   }
 
   // 获取槽位位置
@@ -143,8 +151,16 @@ export class FoundationArea {
         color: suitColors[suits[i]]
       }).setOrigin(0.5).setAlpha(0.3);
 
+      // 设置为可交互（用于点击放置卡牌）
+      slot.setInteractive({ useHandCursor: true });
+
       this.slots.push(slot);
     }
+  }
+
+  // 获取所有槽位的交互对象
+  getSlotGameObjects(): Phaser.GameObjects.Rectangle[] {
+    return this.slots;
   }
 
   // 获取槽位位置
