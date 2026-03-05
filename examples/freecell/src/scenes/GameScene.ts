@@ -381,6 +381,9 @@ export class GameScene extends Phaser.Scene {
 
     // 尝试自动移动到Foundation
     this.tryAutoMoveToFoundation(card);
+
+    // 重置isDragging标志，允许后续操作
+    this.isDragging = false;
   }
 
   // 清除卡牌选择状态
