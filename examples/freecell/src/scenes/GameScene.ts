@@ -39,6 +39,9 @@ export class GameScene extends Phaser.Scene {
   // 拖拽状态跟踪
   private isDragging: boolean = false;
 
+  // 双击操作进行中标志（用于阻止拖拽事件干扰）
+  private isDoubleClicking: boolean = false;
+
   constructor() {
     super({ key: 'GameScene' });
   }
@@ -77,6 +80,7 @@ export class GameScene extends Phaser.Scene {
     this.lastClickTime = 0;
     this.lastClickedCard = null;
     this.isDragging = false;
+    this.isDoubleClicking = false;
   }
 
   create(): void {
@@ -260,6 +264,12 @@ export class GameScene extends Phaser.Scene {
     this.input.setDraggable(card);
 
     card.on('dragstart', () => {
+      // 如果是双击操作，跳过拖拽
+      if (this.isDoubleClicking) {
+        console.log('[dragstart] Skipped due to double-click');
+        return;
+      }
+
       // 设置拖拽状态
       this.isDragging = true;
 
@@ -307,6 +317,12 @@ export class GameScene extends Phaser.Scene {
     });
 
     card.on('dragend', () => {
+      // 如果是双击操作，跳过拖拽结束处理
+      if (this.isDoubleClicking) {
+        console.log('[dragend] Skipped due to double-click');
+        return;
+      }
+
       // 重置拖拽状态
       this.isDragging = false;
 
@@ -373,17 +389,20 @@ export class GameScene extends Phaser.Scene {
   private handleDoubleClick(card: Card): void {
     console.log('[handleDoubleClick] Card:', card.cardData.suit, card.cardData.rank, 'Position:', card.x, card.y);
 
+    // 设置双击标志，阻止拖拽事件干扰
+    this.isDoubleClicking = true;
+
     // 清除选择
     this.clearCardSelection();
-
-    // 设置标志，防止拖拽事件干扰
-    this.isDragging = true;
 
     // 尝试自动移动到Foundation
     this.tryAutoMoveToFoundation(card);
 
-    // 重置isDragging标志，允许后续操作
-    this.isDragging = false;
+    // 延迟重置双击标志，确保拖拽事件不会干扰
+    this.time.delayedCall(100, () => {
+      this.isDoubleClicking = false;
+      console.log('[handleDoubleClick] isDoubleClicking reset to false');
+    });
   }
 
   // 清除卡牌选择状态
